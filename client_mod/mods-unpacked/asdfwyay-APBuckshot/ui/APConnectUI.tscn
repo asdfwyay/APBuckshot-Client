@@ -1,0 +1,120 @@
+[gd_scene load_steps=3 format=3 uid="uid://bsusi5c7j172o"]
+
+[ext_resource type="FontFile" uid="uid://vhj3kkn6yn8o" path="res://fonts/fake receipt.otf" id="1_klvvj"]
+[ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/APConnectUI.gd" id="1_m0gqf"]
+
+[node name="APConnectUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_m0gqf")
+
+[node name="BaseMenu" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -475.0
+offset_top = -265.0
+offset_right = -175.0
+offset_bottom = -57.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BaseMenu"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GridContainer" type="GridContainer" parent="BaseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 32
+theme_override_constants/v_separation = 5
+columns = 2
+
+[node name="slot_label" type="Label" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "SLOT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="slot_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+alignment = 2
+
+[node name="host_label" type="Label" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "HOST"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="host_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "archipelago.gg"
+alignment = 2
+
+[node name="port_label" type="Label" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "PORT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="port_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+alignment = 2
+max_length = 5
+virtual_keyboard_type = 2
+
+[node name="password_label" type="Label" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "PASSWORD"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="password_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+alignment = 2
+
+[node name="connect_button" type="Button" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "Connect"
+
+[node name="connect_status" type="Label" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "NOT CONNECTED"
+horizontal_alignment = 2
+
+[node name="close_button" type="Button" parent="BaseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "CLOSE"
+
+[connection signal="pressed" from="BaseMenu/VBoxContainer/GridContainer/connect_button" to="." method="_on_connect_button_pressed"]
+[connection signal="pressed" from="BaseMenu/VBoxContainer/close_button" to="." method="_on_close_button_pressed"]

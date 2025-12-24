@@ -1,0 +1,21 @@
+{
+	"name": "APBuckshot",
+	"namespace": "asdfwyay",
+	"version_number": "1.0.0",
+	"description": "Archipelago.gg Integration for Buckshot Roulette",
+	"website_url": "https://github.com/example/repo",
+	"dependencies": [],
+	"extra": {
+		"godot": {
+			"authors": ["asdfwyay"],
+			"tags": ["Randomizer"],
+			"description_rich": "",
+			"optional_dependencies": [],
+			"load_before": [],
+			"incompatibilities": [],
+			"compatible_mod_loader_version": ["7.0.1"],
+			"compatible_game_version": ["2.2.0"],
+			"config_schema": {}
+		}
+	}
+}
