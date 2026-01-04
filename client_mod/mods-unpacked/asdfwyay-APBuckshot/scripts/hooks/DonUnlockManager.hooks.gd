@@ -6,3 +6,6 @@ func UnlockRoutine(chain: ModLoaderHookChain) -> void:
 	
 	if ApClient.canAccessDON:
 		chain.execute_next()
+	else:
+		print("changing scene to: menu")
+		mainNode.get_tree().change_scene_to_file("res://scenes/menu.tscn")
