@@ -47,6 +47,7 @@ vertical_alignment = 1
 [node name="slot_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+focus_mode = 1
 theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 alignment = 2
@@ -62,6 +63,7 @@ vertical_alignment = 1
 [node name="host_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+focus_mode = 1
 theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 text = "archipelago.gg"
@@ -77,6 +79,7 @@ vertical_alignment = 1
 
 [node name="port_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
+focus_mode = 1
 theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 alignment = 2
@@ -93,12 +96,14 @@ vertical_alignment = 1
 
 [node name="password_input" type="LineEdit" parent="BaseMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
+focus_mode = 1
 theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 alignment = 2
 
 [node name="connect_button" type="Button" parent="BaseMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
+focus_mode = 1
 theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 text = "Connect"
@@ -112,9 +117,15 @@ horizontal_alignment = 2
 
 [node name="close_button" type="Button" parent="BaseMenu/VBoxContainer"]
 layout_mode = 2
+focus_mode = 1
 theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 text = "CLOSE"
 
+[connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/slot_input" to="." method="_on_slot_input_gui_input"]
+[connection signal="text_change_rejected" from="BaseMenu/VBoxContainer/GridContainer/slot_input" to="." method="_on_slot_input_text_change_rejected"]
+[connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/host_input" to="." method="_on_host_input_gui_input"]
+[connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/port_input" to="." method="_on_port_input_gui_input"]
+[connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/password_input" to="." method="_on_password_input_gui_input"]
 [connection signal="pressed" from="BaseMenu/VBoxContainer/GridContainer/connect_button" to="." method="_on_connect_button_pressed"]
 [connection signal="pressed" from="BaseMenu/VBoxContainer/close_button" to="." method="_on_close_button_pressed"]
