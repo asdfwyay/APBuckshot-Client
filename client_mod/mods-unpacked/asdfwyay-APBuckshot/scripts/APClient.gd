@@ -42,6 +42,8 @@ var socket = WebSocketPeer.new()
 var connectionState: ConnectionState = ConnectionState.DISCONNECTED
 var syncing: bool = false
 
+var CONNECTION_TIMEOUT: float = 5.0
+
 func _ready():
 	pass
 	#socket.connect_to_url("wss://%s:%d" % [hostname, port])
@@ -52,12 +54,17 @@ func APConnect(_slot, _hostname, _port, _password) -> void:
 	port = _port
 	password = _password
 	
-	var result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
-	if result != OK:
-		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
-		if result != OK:
-			return
+	socket = WebSocketPeer.new()
 	connectionState = ConnectionState.CONNECTING
+	
+	var result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
+	await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
+	if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
+		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
+		await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
+		if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
+			connectionState = ConnectionState.DISCONNECTED
+			return
 
 func _process(delta):
 	if connectionState == ConnectionState.DISCONNECTED:
@@ -75,7 +82,7 @@ func _process(delta):
 		var code = socket.get_close_code()
 		var reason = socket.get_close_reason()
 		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-		set_process(false) # Stop processing.
+		#set_process(false) # Stop processing.
 		
 func SendPacket(packet: APPacket) -> void:
 	socket.send_text(packet.serialize())
