@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3 uid="uid://cq8t8k11xqb0q"]
+
+[ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/APOverlay.gd" id="1_oogvm"]
+[ext_resource type="FontFile" uid="uid://vhj3kkn6yn8o" path="res://fonts/fake receipt.otf" id="1_spycr"]
+
+[node name="APOverlay" type="Node2D"]
+script = ExtResource("1_oogvm")
+
+[node name="OuterContainer" type="MarginContainer" parent="."]
+offset_right = 130.0
+offset_bottom = 24.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="ColorRect" parent="OuterContainer"]
+layout_mode = 2
+color = Color(0, 0, 0, 0.196078)
+
+[node name="InnerContainer" type="MarginContainer" parent="OuterContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="connect_status" type="Label" parent="OuterContainer/InnerContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+theme_override_font_sizes/font_size = 16
+text = "AP Connected"
+vertical_alignment = 2
+
+[connection signal="resized" from="OuterContainer/InnerContainer/connect_status" to="." method="_on_connect_status_resized"]

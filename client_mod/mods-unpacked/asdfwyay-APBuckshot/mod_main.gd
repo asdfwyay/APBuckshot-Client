@@ -53,6 +53,10 @@ func install_script_hook_files() -> void:
 		"res://scripts/DonUnlockManager.gd",
 		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/DonUnlockManager.hooks.gd"
 	)
+	ModLoaderMod.install_script_hooks(
+		"res://scripts/UserExit.gd",
+		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/UserExit.hooks.gd"
+	)
 
 func add_translations() -> void:
 	translations_dir_path = mod_dir_path.path_join("translations")
