@@ -25,10 +25,19 @@ func _process(delta):
 			connect_status.text = "CONNECTED"
 			
 
-func remove_char_at_index(in_str: String, i: int)-> String:
+func remove_char_at_index(in_str: String, i: int) -> String:
 	if i < 0 or i >= in_str.length():
 		return in_str
 	return in_str.substr(0, i) + in_str.substr(i + 1, in_str.length() - i - 1)
+	
+func remove_substr_at_indices(in_str: String, start: int, end: int) -> String:
+	if start >= in_str.length() or end < 0 or end < start:
+		return in_str
+		
+	start = max(0, start)
+	end = min(in_str.length() - 1, end)
+	
+	return in_str.substr(0, start) + in_str.substr(end + 1, in_str.length() - end - 1)
 
 func _handle_control_keys(event, input_field: LineEdit):
 	if event is InputEventKey:
@@ -40,15 +49,23 @@ func _handle_control_keys(event, input_field: LineEdit):
 				input_field.caret_column + 1
 			)
 		if event.pressed and event.keycode == KEY_BACKSPACE:
-			var caret_column = input_field.caret_column
+			var caret_column
 			
-			if (input_field.text).length() > 0:
+			if input_field.get_selected_text():
+				caret_column = input_field.get_selection_from_column()
+				input_field.text = remove_substr_at_indices(
+					input_field.text,
+					input_field.get_selection_from_column(),
+					input_field.get_selection_to_column() - 1
+				)
+				input_field.caret_column = caret_column
+			elif (input_field.text).length() > 0:
+				caret_column = input_field.caret_column
 				input_field.text = remove_char_at_index(
 					input_field.text,
 					caret_column - 1
 				)
-				
-			input_field.caret_column = caret_column - 1
+				input_field.caret_column = caret_column - 1
 
 func _on_slot_input_gui_input(event):
 	_handle_control_keys(event, slot_input)
