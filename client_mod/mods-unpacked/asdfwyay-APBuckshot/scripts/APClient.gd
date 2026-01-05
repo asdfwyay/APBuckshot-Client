@@ -44,11 +44,15 @@ var syncing: bool = false
 
 var CONNECTION_TIMEOUT: float = 5.0
 
+var attemptReconnection: bool = true
+var failedAttempts: int = 0
+var MAX_FAILED_ATTEMPTS: int = 5
+
 func _ready():
 	pass
 	#socket.connect_to_url("wss://%s:%d" % [hostname, port])
 	
-func APConnect(_slot, _hostname, _port, _password) -> void:
+func APConnect(_slot, _hostname, _port, _password) -> bool:
 	slot = _slot
 	hostname = _hostname
 	port = _port
@@ -57,14 +61,20 @@ func APConnect(_slot, _hostname, _port, _password) -> void:
 	socket = WebSocketPeer.new()
 	connectionState = ConnectionState.CONNECTING
 	
-	var result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
+	var result
+	if (hostname in ["localhost", "127.0.0.1"]):
+		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
+	else:
+		result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
+	
 	await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 	if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
 		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
 		await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 		if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
 			connectionState = ConnectionState.DISCONNECTED
-			return
+			return false
+	return true
 
 func _process(delta):
 	if connectionState == ConnectionState.DISCONNECTED:
@@ -73,6 +83,8 @@ func _process(delta):
 	socket.poll()
 	var state = socket.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
+		attemptReconnection = true
+		failedAttempts = 0
 		while socket.get_available_packet_count():
 			ParsePacket(socket.get_packet())
 	elif state == WebSocketPeer.STATE_CLOSING:
@@ -81,8 +93,14 @@ func _process(delta):
 	elif state == WebSocketPeer.STATE_CLOSED:
 		var code = socket.get_close_code()
 		var reason = socket.get_close_reason()
-		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
+		#print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
 		#set_process(false) # Stop processing.
+		if (attemptReconnection):
+			var result = await APConnect(slot, hostname, port, password)
+			if not result:
+				failedAttempts += 1
+			if (failedAttempts > MAX_FAILED_ATTEMPTS):
+				attemptReconnection = false
 		
 func SendPacket(packet: APPacket) -> void:
 	socket.send_text(packet.serialize())
