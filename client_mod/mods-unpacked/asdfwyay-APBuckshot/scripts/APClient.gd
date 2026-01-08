@@ -19,8 +19,8 @@ enum ConnectionState {
 	DISCONNECTING = 3
 }
 
-const L_OFST_LIVE_SS = 57
-const L_OFST_BLANK_SS = 557
+const L_OFST_LIVE_SS = 58
+const L_OFST_BLANK_SS = 558
 
 var shotsanityLiveCount: int = 0
 var shotsanityBlankCount: int = 0
@@ -198,14 +198,14 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				checkedLocations = connectedPck.checked_locations.duplicate()
 				connectionState = ConnectionState.CONNECTED
 				
-				if (float(L_OFST_LIVE_SS + 1) in checkedLocations):
-					shotsanityLiveCount = checkedLocations.filter(func(n):
-						return n > L_OFST_LIVE_SS and n <= L_OFST_BLANK_SS
-					).max() - L_OFST_LIVE_SS
-				if (float(L_OFST_BLANK_SS + 1) in checkedLocations):
-					shotsanityBlankCount = checkedLocations.filter(func(n):
-						return n > L_OFST_BLANK_SS
-					).max() - L_OFST_BLANK_SS
+				for i in range(L_OFST_LIVE_SS, L_OFST_BLANK_SS):
+					if float(i) not in checkedLocations:
+						shotsanityLiveCount = i - L_OFST_LIVE_SS
+						break
+				for i in range(L_OFST_BLANK_SS, L_OFST_BLANK_SS + 500):
+					if float(i) not in checkedLocations:
+						shotsanityBlankCount = i - L_OFST_BLANK_SS
+						break
 				
 				donAccessReq = connectedPck.slot_data["double_or_nothing_requirements"]
 				CheckDONAccess()
