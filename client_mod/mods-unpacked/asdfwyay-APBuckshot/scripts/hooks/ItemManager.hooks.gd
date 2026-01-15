@@ -30,6 +30,11 @@ func GrabItem(chain: ModLoaderHookChain):
 	var pull_item: int = randi_range(2,10 - zero_active_count)
 	if float(pull_item) not in ApClient.obtainedItems:
 		mainNode.numberOfItemsGrabbed += 1
+		
+		var sound = load("res://audio/item grid indicator blip.ogg")
+		mainNode.speaker_itemgrab.stream = sound
+		mainNode.speaker_itemgrab.play()
+		
 		return
 	
 	for id in range(2,11):
