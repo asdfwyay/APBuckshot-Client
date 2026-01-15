@@ -1,14 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://cq8t8k11xqb0q"]
+[gd_scene load_steps=5 format=3 uid="uid://cq8t8k11xqb0q"]
 
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/APOverlay.gd" id="1_oogvm"]
 [ext_resource type="FontFile" uid="uid://vhj3kkn6yn8o" path="res://fonts/fake receipt.otf" id="1_spycr"]
+[ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/TrackerItemSlot.gd" id="3_n8s6c"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_cjncx"]
+viewport_path = NodePath("Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport")
 
 [node name="APOverlay" type="Node2D"]
 script = ExtResource("1_oogvm")
 
 [node name="OuterContainer" type="MarginContainer" parent="."]
-offset_right = 130.0
-offset_bottom = 24.0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = 480.0
+offset_right = 160.0
+offset_bottom = 534.0
+grow_vertical = 0
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
@@ -32,4 +41,404 @@ theme_override_font_sizes/font_size = 16
 text = "AP Connected"
 vertical_alignment = 2
 
+[node name="Tracker" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TrackerContainer" type="MarginContainer" parent="Tracker"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 380.0
+offset_top = -20.0
+offset_right = 920.0
+offset_bottom = 520.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/margin_left = 46
+theme_override_constants/margin_top = 46
+theme_override_constants/margin_right = 46
+theme_override_constants/margin_bottom = 46
+
+[node name="GridContainer" type="GridContainer" parent="Tracker/TrackerContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 3
+
+[node name="ItemSlot" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 2
+item_name = "Hand Saw"
+item_resource_path = "res://instances/item_handsaw.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot2" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 3
+item_name = "Magnifying Glass"
+item_resource_path = "res://instances/item_magnifying glass.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot2"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot2/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot2/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot2/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot3" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 4
+item_name = "Beer"
+item_resource_path = "res://instances/item_beer can.tscn"
+vert_offset = -1.0
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot3"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot3/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot3/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot3/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot4" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 5
+item_name = "Cigarette Pack"
+item_resource_path = "res://instances/item_cigarettes.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot4"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot4/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot4/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot4/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot5" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 6
+item_name = "Handcuffs"
+item_resource_path = "res://instances/item_handcuffs.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot5"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot5/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot5/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot5/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot6" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 7
+item_name = "Expired Medicine"
+item_resource_path = "res://instances/item_expired medicine.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot6"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot6/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot6/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot6/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot7" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 8
+item_name = "Burner Phone"
+item_resource_path = "res://instances/item_burner phone.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot7"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot7/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot7/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot7/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot8" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 9
+item_name = "Adrenaline"
+item_resource_path = "res://instances/item_adrenaline.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot8"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot8/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot8/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot8/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="ItemSlot9" type="ColorRect" parent="Tracker/TrackerContainer/GridContainer"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+color = Color(0, 0, 0, 0.768627)
+script = ExtResource("3_n8s6c")
+id = 10
+item_name = "Inverter"
+item_resource_path = "res://instances/item_inverter.tscn"
+
+[node name="ItemContainer" type="SubViewportContainer" parent="Tracker/TrackerContainer/GridContainer/ItemSlot9"]
+texture_filter = 1
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Tracker/TrackerContainer/GridContainer/ItemSlot9/ItemContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(140, 140)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot9/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot9/ItemContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="TrackerLabelContainer" type="MarginContainer" parent="Tracker"]
+layout_mode = 0
+offset_right = 362.0
+offset_bottom = 430.0
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Tracker/TrackerLabelContainer"]
+layout_mode = 2
+
+[node name="item_name" type="Label" parent="Tracker/TrackerLabelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+theme_override_font_sizes/font_size = 24
+text = "Item Name"
+vertical_alignment = 2
+
+[node name="item_status" type="Label" parent="Tracker/TrackerLabelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+theme_override_font_sizes/font_size = 24
+text = "(NOT) Found"
+vertical_alignment = 2
+
+[node name="ItemModelBG" type="ColorRect" parent="Tracker/TrackerLabelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(312, 312)
+layout_mode = 2
+color = Color(0, 0, 0, 0.752941)
+
+[node name="ItemModel" type="TextureRect" parent="Tracker/TrackerLabelContainer/VBoxContainer/ItemModelBG"]
+custom_minimum_size = Vector2(312, 312)
+layout_mode = 2
+offset_right = 312.0
+offset_bottom = 312.0
+texture = SubResource("ViewportTexture_cjncx")
+
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot3" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot4" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot5" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot6" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot7" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot8" method="update_transparency"]
+[connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="update_transparency"]
 [connection signal="resized" from="OuterContainer/InnerContainer/connect_status" to="." method="_on_connect_status_resized"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot" to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot" to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot2" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot2" to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot2" to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot2" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot3" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot3" to="Tracker/TrackerContainer/GridContainer/ItemSlot3" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot3" to="Tracker/TrackerContainer/GridContainer/ItemSlot3" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot3" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot4" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot4" to="Tracker/TrackerContainer/GridContainer/ItemSlot4" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot4" to="Tracker/TrackerContainer/GridContainer/ItemSlot4" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot4" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot5" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot5" to="Tracker/TrackerContainer/GridContainer/ItemSlot5" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot5" to="Tracker/TrackerContainer/GridContainer/ItemSlot5" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot5" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot6" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot6" to="Tracker/TrackerContainer/GridContainer/ItemSlot6" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot6" to="Tracker/TrackerContainer/GridContainer/ItemSlot6" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot6" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot7" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot7" to="Tracker/TrackerContainer/GridContainer/ItemSlot7" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot7" to="Tracker/TrackerContainer/GridContainer/ItemSlot7" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot7" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot8" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot8" to="Tracker/TrackerContainer/GridContainer/ItemSlot8" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot8" to="Tracker/TrackerContainer/GridContainer/ItemSlot8" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot8" to="." method="_on_show_tracker_info"]
+[connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="." method="_on_hide_tracker_info"]
+[connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="_on_mouse_exited"]
+[connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="." method="_on_show_tracker_info"]
