@@ -6,6 +6,7 @@ var ApClient
 @onready var host_input: LineEdit = $BaseMenu/VBoxContainer/GridContainer/host_input
 @onready var port_input: LineEdit = $BaseMenu/VBoxContainer/GridContainer/port_input
 @onready var password_input: LineEdit = $BaseMenu/VBoxContainer/GridContainer/password_input
+@onready var deathlink_cb: CheckButton = $BaseMenu/VBoxContainer/GridContainer/deathlink_cb
 
 @onready var connect_status: Label = $BaseMenu/VBoxContainer/GridContainer/connect_status
 
@@ -13,6 +14,13 @@ var ApClient
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
 	print(ApClient)
+	
+	slot_input.text = ApClient.slot
+	host_input.text = ApClient.hostname
+	port_input.text = ApClient.port
+	password_input.text = ApClient.password
+	
+	deathlink_cb.set_pressed_no_signal(ApClient.deathLink)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -89,3 +97,6 @@ func _on_connect_button_pressed():
 
 func _on_close_button_pressed():
 	queue_free()
+
+func _on_deathlink_cb_toggled(button_pressed):
+	ApClient.setDeathLink(deathlink_cb.button_pressed)

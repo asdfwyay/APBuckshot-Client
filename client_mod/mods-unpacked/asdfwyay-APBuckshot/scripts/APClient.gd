@@ -3,11 +3,14 @@ class_name APClient extends Node
 const APPacket = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPacket.gd")
 const NetworkVersion = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/NetworkVersion.gd")
 
+const Bounce = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Bounce.gd")
 const Connect = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Connect.gd")
+const ConnectUpdate = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/ConnectUpdate.gd")
 const LocationChecks = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/LocationChecks.gd")
 const StatusUpdate = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/StatusUpdate.gd")
 const Sync = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Sync.gd")
 
+const Bounced = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/Bounced.gd")
 const Connected = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/Connected.gd")
 const ReceivedItems = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/ReceivedItems.gd")
 const RoomInfo = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/RoomInfo.gd")
@@ -19,18 +22,30 @@ enum ConnectionState {
 	DISCONNECTING = 3
 }
 
-const L_OFST_LIVE_SS = 58
-const L_OFST_BLANK_SS = 558
+const L_OFST_SS = 94
+const WINNER_ITEM_ID = 26
 
-var shotsanityLiveCount: int = 0
-var shotsanityBlankCount: int = 0
+const I_OFST_MECH = 11
+const I_OFST_TRAP = 13
+const I_OFST_FILL = 15
+
+const I_ITEM_LUCK = 11
+const I_LIFE_BANK = 12
+
+const I_ITEM_TRAP = 13
+const I_BULLET_TRAP = 14
+
+var shotsanityCount: int = 0
 var donAccessReq: int = 0
 var canAccessDON: bool = false
 var goalAmt: int = 0
 
-var slot: String = "asdfwyay-BR"
+var deathLink: bool = false
+var awaitingDeathLink: bool = false
+
+var slot: String = ""
 var hostname: String = "archipelago.gg"
-var port: String = "49430"
+var port: String = "38281"
 var password: String = ""
 
 const uuidUtil = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/utils/uuid.gd")
@@ -38,8 +53,13 @@ const uuidUtil = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/utils/
 var itemIndex: int = 0
 
 var inventory: Array = []
+var mechanicItems: Dictionary = {} #[int, int]
 var checkedLocations: Array = []
 var obtainedItems: Array = []
+var trapQueue: Array = []
+
+var lifeBankCharges: int = 0
+var isPlayerTurn: bool = false
 
 var socket = WebSocketPeer.new()
 var connectionState: ConnectionState = ConnectionState.DISCONNECTED
@@ -51,6 +71,8 @@ var attemptReconnection: bool = true
 var failedAttempts: int = 0
 var MAX_FAILED_ATTEMPTS: int = 5
 
+var slot_num: int = 0
+
 func _ready():
 	pass
 	#socket.connect_to_url("wss://%s:%d" % [hostname, port])
@@ -60,6 +82,8 @@ func APConnect(_slot, _hostname, _port, _password) -> bool:
 	hostname = _hostname
 	port = _port
 	password = _password
+	
+	resetLifeBank()
 	
 	socket = WebSocketPeer.new()
 	connectionState = ConnectionState.CONNECTING
@@ -121,11 +145,17 @@ func SendLocation(id: float) -> void:
 	
 func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 	for item in recItemsPck.items:
-		if item.item == 22:
+		if item.item == WINNER_ITEM_ID:
 			var statusUpdatePck = StatusUpdate.new(StatusUpdate.ClientStatus.CLIENT_GOAL)
 			SendPacket(statusUpdatePck)
-		elif item.item <= 10 && !obtainedItems.has(item.item):
+		elif item.item < I_OFST_MECH and !obtainedItems.has(item.item):
 			obtainedItems.append(item.item)
+		elif item.item >= I_OFST_MECH and item.item < I_OFST_TRAP:
+			mechanicItems[int(item.item)] += 1
+			if (item.item == I_LIFE_BANK):
+				lifeBankCharges += 1
+		elif item.item >= I_OFST_TRAP and item.item < I_OFST_FILL:
+			if (!syncing): trapQueue.append(int(item.item))
 	CheckDONAccess()
 	
 func CheckDONAccess() -> void:
@@ -165,17 +195,32 @@ func ParsePacket(packet: PackedByteArray) -> void:
 						itemIndex = recItemsPck.index + 1
 					syncing = false
 				else:
+					resetLifeBank()
 					var syncPck = Sync.new()
 					syncing = true
 					itemIndex = recItemsPck.index + 1
 					SendPacket(syncPck)
 					UpdateLocations()
+			"Bounced":
+				var bouncedPck = Bounced.new()
+				bouncedPck.from_dict(incPckData)
+
+				print(deathLink, bouncedPck.tags)
+				
+				if deathLink and bouncedPck.tags and "DeathLink" in bouncedPck.tags:
+					awaitingDeathLink = true
 					
 	else:
 		match incPckData.cmd:
 			"RoomInfo":
 				var roomInfoPck = RoomInfo.new()
 				roomInfoPck.from_dict(incPckData)
+				
+				var tags
+				if deathLink:
+					tags = ["NoText", "DeathLink"]
+				else:
+					tags = ["NoText"]
 				
 				connectPck = Connect.new(
 					password,
@@ -186,7 +231,9 @@ func ParsePacket(packet: PackedByteArray) -> void:
 						roomInfoPck.version.major,
 						roomInfoPck.version.minor,
 						roomInfoPck.version.build
-					)
+					),
+					0b111,
+					tags
 				)
 				SendPacket(connectPck)
 			"ConnectionRefused":
@@ -198,13 +245,11 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				checkedLocations = connectedPck.checked_locations.duplicate()
 				connectionState = ConnectionState.CONNECTED
 				
-				for i in range(L_OFST_LIVE_SS, L_OFST_BLANK_SS):
+				slot_num = connectedPck.slot
+				
+				for i in range(L_OFST_SS, L_OFST_SS + 1000):
 					if float(i) not in checkedLocations:
-						shotsanityLiveCount = i - L_OFST_LIVE_SS
-						break
-				for i in range(L_OFST_BLANK_SS, L_OFST_BLANK_SS + 500):
-					if float(i) not in checkedLocations:
-						shotsanityBlankCount = i - L_OFST_BLANK_SS
+						shotsanityCount = i - L_OFST_SS
 						break
 				
 				donAccessReq = connectedPck.slot_data["double_or_nothing_requirements"]
@@ -224,3 +269,36 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				var syncPck = Sync.new()
 				syncing = true
 				SendPacket(syncPck)
+
+func setDeathLink(value: bool) -> void:
+	var tags
+	if value:
+		tags = ["NoText", "DeathLink"]
+	else:
+		tags = ["NoText"]
+	
+	var connectUpdatePck = ConnectUpdate.new(
+		0b111,
+		tags
+	)
+	SendPacket(connectUpdatePck)
+	
+	deathLink = value
+
+func resetLifeBank() -> void:
+	for i in range(I_OFST_MECH, I_OFST_TRAP):
+		mechanicItems[i] = 0
+	lifeBankCharges = 0
+	
+func sendDeathLink() -> void:
+	var deathLinkPacket = Bounce.new(
+		[],
+		[],
+		["DeathLink"],
+		{
+			"time": Time.get_unix_time_from_system(),
+			"cause": "%s took a bullet to the face." % [slot],
+			"source": slot
+		}
+	)
+	SendPacket(deathLinkPacket)

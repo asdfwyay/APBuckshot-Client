@@ -1,7 +1,7 @@
 {
 	"name": "APBuckshot",
 	"namespace": "asdfwyay",
-	"version_number": "0.0.3",
+	"version_number": "0.1.0",
 	"description": "Archipelago.gg Integration for Buckshot Roulette",
 	"website_url": "https://github.com/asdfwyay/APBuckshot",
 	"dependencies": [],

@@ -1,11 +1,25 @@
-[gd_scene load_steps=5 format=3 uid="uid://cq8t8k11xqb0q"]
+[gd_scene load_steps=10 format=3 uid="uid://cq8t8k11xqb0q"]
 
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/APOverlay.gd" id="1_oogvm"]
 [ext_resource type="FontFile" uid="uid://vhj3kkn6yn8o" path="res://fonts/fake receipt.otf" id="1_spycr"]
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/TrackerItemSlot.gd" id="3_n8s6c"]
+[ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/LifeBank.gd" id="4_pw3aj"]
+[ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/SchrodingerIndicator.gd" id="5_rrwm1"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_cjncx"]
 viewport_path = NodePath("Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_xset5"]
+viewport_path = NodePath("LifeBankCanvas/LifeBank/IconTextureContainer/SubViewport")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uvh7x"]
+bg_color = Color(0, 0, 0, 0.498039)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="ImageTexture" id="ImageTexture_v16o2"]
 
 [node name="APOverlay" type="Node2D"]
 script = ExtResource("1_oogvm")
@@ -42,6 +56,7 @@ text = "AP Connected"
 vertical_alignment = 2
 
 [node name="Tracker" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
@@ -95,7 +110,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -127,7 +142,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot2/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -160,7 +175,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot3/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -192,7 +207,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot4/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -224,7 +239,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot5/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -256,7 +271,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot6/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -288,7 +303,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot7/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -320,7 +335,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot8/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -352,7 +367,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot9/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -395,6 +410,174 @@ layout_mode = 2
 offset_right = 312.0
 offset_bottom = 312.0
 texture = SubResource("ViewportTexture_cjncx")
+
+[node name="TrackerAdditionalInfoContainer" type="MarginContainer" parent="Tracker"]
+layout_mode = 0
+offset_right = 362.0
+offset_bottom = 430.0
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Tracker/TrackerAdditionalInfoContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Tracker/TrackerAdditionalInfoContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="luck_label" type="Label" parent="Tracker/TrackerAdditionalInfoContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+theme_override_font_sizes/font_size = 24
+text = "Current Luck: "
+vertical_alignment = 2
+
+[node name="luck_level" type="Label" parent="Tracker/TrackerAdditionalInfoContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+theme_override_font_sizes/font_size = 24
+text = "NONE"
+vertical_alignment = 2
+
+[node name="LifeBankCanvas" type="CanvasLayer" parent="."]
+layer = 4
+visible = false
+
+[node name="LifeBank" type="Control" parent="LifeBankCanvas"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("4_pw3aj")
+
+[node name="LifeBankContainer" type="MarginContainer" parent="LifeBankCanvas/LifeBank"]
+layout_mode = 0
+offset_right = 136.0
+offset_bottom = 136.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+
+[node name="Icon" type="TextureRect" parent="LifeBankCanvas/LifeBank/LifeBankContainer"]
+layout_mode = 2
+texture = SubResource("ViewportTexture_xset5")
+expand_mode = 2
+
+[node name="ChargeCountCanvas" type="CanvasLayer" parent="LifeBankCanvas/LifeBank/LifeBankContainer/Icon"]
+layer = 3
+visible = false
+
+[node name="ChargeCountContainer" type="Panel" parent="LifeBankCanvas/LifeBank/LifeBankContainer/Icon/ChargeCountCanvas"]
+offset_left = 56.0
+offset_top = 56.0
+offset_right = 96.0
+offset_bottom = 96.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_uvh7x")
+
+[node name="charge_count" type="Label" parent="LifeBankCanvas/LifeBank/LifeBankContainer/Icon/ChargeCountCanvas/ChargeCountContainer"]
+layout_mode = 0
+offset_top = 8.0
+offset_right = 40.0
+offset_bottom = 32.0
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "0/0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="IconTextureContainer" type="SubViewportContainer" parent="LifeBankCanvas/LifeBank"]
+texture_filter = 1
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 0
+offset_left = -512.0
+offset_top = -512.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="LifeBankCanvas/LifeBank/IconTextureContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 0
+
+[node name="Camera3D" type="Camera3D" parent="LifeBankCanvas/LifeBank/IconTextureContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.047, 0)
+fov = 90.0
+near = 0.005
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="LifeBankCanvas/LifeBank/IconTextureContainer/SubViewport"]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 0, 0)
+
+[node name="TrapIndicators" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="OuterIndicatorContainer" type="MarginContainer" parent="TrapIndicators"]
+layout_mode = 0
+offset_top = 440.0
+offset_right = 60.0
+offset_bottom = 500.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TrapIndicators/OuterIndicatorContainer"]
+layout_mode = 2
+
+[node name="DeathLinkIndicator" type="TextureRect" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 3
+
+[node name="StolenIndicator" type="SubViewportContainer" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="TextureOverlay" type="TextureRect" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/StolenIndicator"]
+layout_mode = 2
+texture = SubResource("ImageTexture_v16o2")
+
+[node name="IndicatorVP" type="SubViewport" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/StolenIndicator"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(40, 40)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/StolenIndicator/IndicatorVP"]
+transform = Transform3D(-0.707107, 0.707107, 3.09086e-08, 0, -4.37114e-08, 1, 0.707107, 0.707107, 3.09086e-08, 0, 3, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/StolenIndicator/IndicatorVP"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="SchrodingerIndicator" type="Node" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer"]
+script = ExtResource("5_rrwm1")
+item_resource_path = "res://instances/shell.tscn"
+
+[node name="IndicatorVPContainer" type="SubViewportContainer" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator"]
+custom_minimum_size = Vector2(40, 40)
+offset_left = 90.0
+offset_top = 450.0
+offset_right = 130.0
+offset_bottom = 490.0
+
+[node name="IndicatorVP" type="SubViewport" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator/IndicatorVPContainer"]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(40, 40)
+size_2d_override = Vector2i(512, 512)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator/IndicatorVPContainer/IndicatorVP"]
+transform = Transform3D(0.707107, -0.707107, 0, -3.09086e-08, -3.09086e-08, 1, -0.707107, -0.707107, -4.37114e-08, 0, 1, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator/IndicatorVPContainer/IndicatorVP"]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
 
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="update_transparency"]
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="update_transparency"]
@@ -442,3 +625,6 @@ texture = SubResource("ViewportTexture_cjncx")
 [connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="_on_mouse_exited"]
 [connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="." method="_on_show_tracker_info"]
+[connection signal="gui_input" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_gui_input"]
+[connection signal="mouse_entered" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_mouse_entered"]
+[connection signal="mouse_exited" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_mouse_exited"]

@@ -22,7 +22,7 @@ anchor_bottom = 0.5
 offset_left = -475.0
 offset_top = -265.0
 offset_right = -175.0
-offset_bottom = -57.0
+offset_bottom = -28.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -101,6 +101,17 @@ theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 alignment = 2
 
+[node name="deathlink_label" type="Label" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+theme_override_font_sizes/font_size = 14
+text = "DEATH LINK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="deathlink_cb" type="CheckButton" parent="BaseMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+
 [node name="connect_button" type="Button" parent="BaseMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
 focus_mode = 1
@@ -127,5 +138,6 @@ text = "CLOSE"
 [connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/host_input" to="." method="_on_host_input_gui_input"]
 [connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/port_input" to="." method="_on_port_input_gui_input"]
 [connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/password_input" to="." method="_on_password_input_gui_input"]
+[connection signal="toggled" from="BaseMenu/VBoxContainer/GridContainer/deathlink_cb" to="." method="_on_deathlink_cb_toggled"]
 [connection signal="pressed" from="BaseMenu/VBoxContainer/GridContainer/connect_button" to="." method="_on_connect_button_pressed"]
 [connection signal="pressed" from="BaseMenu/VBoxContainer/close_button" to="." method="_on_close_button_pressed"]

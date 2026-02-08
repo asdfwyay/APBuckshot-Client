@@ -16,7 +16,14 @@ func GrabItem(chain: ModLoaderHookChain):
 		else:
 			active_items += mainNode.amounts.array_amounts[i].amount_active
 	
-	if ApClient.obtainedItems.is_empty() or active_items == 0 or (
+	var item_trap: bool = false
+	print(ApClient.trapQueue)
+	if ApClient.I_ITEM_TRAP in ApClient.trapQueue:
+		print("ITEM TRAP")
+		item_trap = true
+		ApClient.trapQueue.erase(ApClient.I_ITEM_TRAP)
+	
+	if ApClient.obtainedItems.is_empty() or active_items == 0 or item_trap or (
 		mainNode.numberOfItemsGrabbed == roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
 		) or (
 		roundManager.currentRound == 0
@@ -27,7 +34,14 @@ func GrabItem(chain: ModLoaderHookChain):
 		mainNode.EndItemGrabbing()
 		return
 		
-	var pull_item: int = randi_range(2,10 - zero_active_count)
+	var num_rolls: int = ApClient.mechanicItems[11] + 1
+	var pull_item: int = 0
+	while (num_rolls > 0):
+		pull_item = randi_range(2,10 - zero_active_count)
+		if float(pull_item) in ApClient.obtainedItems:
+			break
+		num_rolls -= 1
+	
 	if float(pull_item) not in ApClient.obtainedItems:
 		mainNode.numberOfItemsGrabbed += 1
 		

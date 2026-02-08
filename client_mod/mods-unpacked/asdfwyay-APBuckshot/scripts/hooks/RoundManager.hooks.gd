@@ -23,7 +23,25 @@ func EndMainBatch(chain: ModLoaderHookChain):
 				ApClient.SendLocation(5)
 	else:
 		var locationOffset = 3*double_or_nothing_rounds_beat + playerData.currentBatchIndex
-		if locationOffset <= 35:
-			ApClient.SendLocation(22 + locationOffset)
+		if locationOffset >= 0 and locationOffset <= 35:
+			ApClient.SendLocation(22 + 2*locationOffset)
+			ApClient.SendLocation(23 + 2*locationOffset)
 			
 	chain.execute_next_async()
+
+func SetupDeskUI(chain: ModLoaderHookChain):
+	var mainNode := chain.reference_object as RoundManager
+	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
+	
+	chain.execute_next_async()
+	
+	if (ApClient.awaitingDeathLink):
+		mainNode.health_player = 1
+		mainNode.shellSpawner.sequenceArray[0] = "live"
+		mainNode.dealerAI.GrabShotgun()
+		mainNode.itemManager.dialogue.ShowText_ForDuration(
+			"YOU'VE BEEN DEATHLINKED",
+			3.0
+		)
+		mainNode.dealerAI.Shoot("player")
+	ApClient.isPlayerTurn = true

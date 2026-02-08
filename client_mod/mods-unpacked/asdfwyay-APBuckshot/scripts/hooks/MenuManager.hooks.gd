@@ -15,7 +15,7 @@ func Intro(chain: ModLoaderHookChain):
 	
 	var ap_version = Label.new()
 	
-	ap_version.text = "v0.0.3 (APBuckshot)"
+	ap_version.text = "v0.1.0 (APBuckshot)"
 	ap_version.position = Vector2(19, 500)
 	
 	var f = load("res://fonts/fake receipt.otf")
@@ -28,11 +28,16 @@ func Intro(chain: ModLoaderHookChain):
 	
 func Start(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as MenuManager
+	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
 	await chain.execute_next_async()
 	
 	APOverlayScene = load("res://mods-unpacked/asdfwyay-APBuckshot/ui/APOverlay.tscn")
 	APOverlayInst = APOverlayScene.instantiate()
 	mainNode.get_tree().get_root().add_child(APOverlayInst)
+	
+	if ApClient.mechanicItems.has(ApClient.I_LIFE_BANK):
+		ApClient.lifeBankCharges = ApClient.mechanicItems[ApClient.I_LIFE_BANK]
+	ApClient.isPlayerTurn = false
 	
 func StartMultiplayer(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as MenuManager

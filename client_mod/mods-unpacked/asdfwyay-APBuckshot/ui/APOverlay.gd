@@ -8,10 +8,18 @@ signal update_transparency(id: float, a: float)
 @onready var connect_status: Label = $OuterContainer/InnerContainer/connect_status
 @onready var tracker: Control = $Tracker
 @onready var tracker_label: MarginContainer = $Tracker/TrackerLabelContainer
+@onready var tracker_added: MarginContainer = $Tracker/TrackerAdditionalInfoContainer
+@onready var life_bank: Control = $LifeBankCanvas/LifeBank
 
 @onready var item_name: Label = $Tracker/TrackerLabelContainer/VBoxContainer/item_name
 @onready var item_status: Label = $Tracker/TrackerLabelContainer/VBoxContainer/item_status
 @onready var item_model: TextureRect = $Tracker/TrackerLabelContainer/VBoxContainer/ItemModelBG/ItemModel
+
+@onready var luck_level: Label = $Tracker/TrackerAdditionalInfoContainer/VBoxContainer/HBoxContainer/luck_level
+
+@onready var stolen_indicator: SubViewportContainer = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/StolenIndicator
+@onready var schrodinger_indicator: SubViewportContainer = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator/IndicatorVPContainer
+@onready var deathlink_indicator: TextureRect = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/DeathLinkIndicator
 
 var tracker_visible: bool = false
 var prev_mouse_mode
@@ -20,12 +28,37 @@ var prev_mouse_mode
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
 	print(ApClient)
+	
 	tracker.visible = false
 	tracker_label.visible = false
+	tracker_added.visible = true
+	
+	stolen_indicator.visible = false
+	schrodinger_indicator.visible = false
+	deathlink_indicator.visible = false
+	
+	var stolen_indicator_overlay = stolen_indicator.get_node("TextureOverlay")
+	stolen_indicator_overlay.texture = load("res://misc/cursor xp_invalid.png")
+	stolen_indicator_overlay.scale = Vector2(0.73, 0.73)
+	stolen_indicator_overlay.position = Vector2(21.49, 2.51)
+	stolen_indicator.get_node("IndicatorVP").add_child(
+		load("res://instances/item_magnifying glass.tscn").instantiate()
+	)
+	
+	deathlink_indicator.texture = load("res://misc/defib charge_skull png.png")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	tracker.visible = tracker_visible
+	life_bank.visible = !tracker.visible
+	
+	if ApClient.mechanicItems.has(ApClient.I_LIFE_BANK):
+		life_bank.visible = life_bank.visible and ApClient.mechanicItems[ApClient.I_LIFE_BANK] > 0
+	
+	stolen_indicator.visible = ApClient.I_ITEM_TRAP in ApClient.trapQueue
+	schrodinger_indicator.visible = ApClient.I_BULLET_TRAP in ApClient.trapQueue
+	deathlink_indicator.visible = ApClient.awaitingDeathLink
+	
 	match ApClient.connectionState:
 		ApClient.ConnectionState.DISCONNECTED:
 			connect_status.text = "AP DISCONNECTED"
@@ -60,6 +93,7 @@ func _input(event):
 					disable_dialogue_ui(dialogue_ui)
 					prev_mouse_mode = Input.mouse_mode
 					Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+					update_additional_info()
 				else:
 					enable_dialogue_ui(dialogue_ui)
 					Input.mouse_mode = prev_mouse_mode
@@ -80,10 +114,33 @@ func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
 	if item_model.texture is ViewportTexture:
 		item_model.texture.set_viewport_path_in_scene(vp.get_path())
 		
+	tracker_added.visible = false
 	tracker_label.visible = true
 
 func _on_hide_tracker_info():
+	update_additional_info()
+	
 	tracker_label.visible = false
+	tracker_added.visible = true
+	
+func update_additional_info():
+	if (ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK)):
+		match (ApClient.mechanicItems[ApClient.I_ITEM_LUCK]):
+			0:
+				luck_level.text = "NONE"
+				luck_level.set("theme_override_colors/font_color", Color8(204, 51, 0))
+			1:
+				luck_level.text = "♣"
+				luck_level.set("theme_override_colors/font_color", Color8(176, 141, 87))
+			2:
+				luck_level.text = "♣♣"
+				luck_level.set("theme_override_colors/font_color", Color8(192, 192, 192))
+			3:
+				luck_level.text = "♣♣♣"
+				item_status.set("theme_override_colors/font_color", Color8(255, 215, 0))
+	else:
+		luck_level.text = "NONE"
+		luck_level.set("theme_override_colors/font_color", Color8(204, 51, 0))
 
 func disable_dialogue_ui(dialogue_ui: Node):
 	for child in dialogue_ui.get_children():
