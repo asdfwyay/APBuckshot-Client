@@ -35,9 +35,10 @@ func SetupDeskUI(chain: ModLoaderHookChain):
 	
 	chain.execute_next_async()
 	
-	if (ApClient.awaitingDeathLink):
+	if (ApClient.awaitingDeathLink and !ApClient.deathLinkCD):
 		mainNode.health_player = 1
 		mainNode.shellSpawner.sequenceArray[0] = "live"
+		mainNode.camera.BeginLerp("enemy")
 		mainNode.dealerAI.GrabShotgun()
 		mainNode.itemManager.dialogue.ShowText_ForDuration(
 			"YOU'VE BEEN DEATHLINKED",

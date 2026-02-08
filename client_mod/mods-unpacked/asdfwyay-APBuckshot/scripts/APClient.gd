@@ -42,6 +42,8 @@ var goalAmt: int = 0
 
 var deathLink: bool = false
 var awaitingDeathLink: bool = false
+var deathLinkCD: bool = false
+var deathLinkCDTimer: float = 0.0
 
 var slot: String = ""
 var hostname: String = "archipelago.gg"
@@ -104,6 +106,12 @@ func APConnect(_slot, _hostname, _port, _password) -> bool:
 	return true
 
 func _process(delta):
+	if deathLinkCD:
+		deathLinkCDTimer += delta
+		if deathLinkCDTimer >= 15.0:
+			deathLinkCD = false
+			deathLinkCDTimer = 0.0
+	
 	if connectionState == ConnectionState.DISCONNECTED:
 		return
 		
