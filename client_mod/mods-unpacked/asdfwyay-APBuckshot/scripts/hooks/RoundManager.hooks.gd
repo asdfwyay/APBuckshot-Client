@@ -35,7 +35,7 @@ func SetupDeskUI(chain: ModLoaderHookChain):
 	
 	chain.execute_next_async()
 	
-	if (ApClient.awaitingDeathLink and !ApClient.deathLinkCD):
+	if ApClient.awaitingDeathLink:
 		mainNode.health_player = 1
 		mainNode.shellSpawner.sequenceArray[0] = "live"
 		mainNode.camera.BeginLerp("enemy")

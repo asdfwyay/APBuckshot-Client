@@ -215,7 +215,8 @@ func ParsePacket(packet: PackedByteArray) -> void:
 
 				print(deathLink, bouncedPck.tags)
 				
-				if deathLink and bouncedPck.tags and "DeathLink" in bouncedPck.tags:
+				if (deathLink and !deathLinkCD
+				and bouncedPck.tags and "DeathLink" in bouncedPck.tags):
 					awaitingDeathLink = true
 					
 	else:
