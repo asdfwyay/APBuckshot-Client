@@ -135,7 +135,7 @@ func update_additional_info():
 			2:
 				luck_level.text = "♣♣"
 				luck_level.set("theme_override_colors/font_color", Color8(192, 192, 192))
-			3:
+			_:
 				luck_level.text = "♣♣♣"
 				item_status.set("theme_override_colors/font_color", Color8(255, 215, 0))
 	else:
