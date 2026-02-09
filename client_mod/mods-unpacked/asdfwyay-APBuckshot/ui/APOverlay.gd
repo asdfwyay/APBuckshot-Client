@@ -21,6 +21,9 @@ signal update_transparency(id: float, a: float)
 @onready var schrodinger_indicator: SubViewportContainer = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator/IndicatorVPContainer
 @onready var deathlink_indicator: TextureRect = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/DeathLinkIndicator
 
+@onready var life_bank_canvas: CanvasLayer = $LifeBankCanvas
+@onready var charge_count_canvas: CanvasLayer = $LifeBankCanvas/LifeBank/LifeBankContainer/Icon/ChargeCountCanvas
+
 var tracker_visible: bool = false
 var prev_mouse_mode
 
@@ -36,6 +39,11 @@ func _ready():
 	stolen_indicator.visible = false
 	schrodinger_indicator.visible = false
 	deathlink_indicator.visible = false
+	
+	life_bank_canvas.visible = true
+	charge_count_canvas.visible = true
+	
+	stolen_indicator.position = Vector2(80, 0)
 	
 	var stolen_indicator_overlay = stolen_indicator.get_node("TextureOverlay")
 	stolen_indicator_overlay.texture = load("res://misc/cursor xp_invalid.png")

@@ -163,7 +163,7 @@ func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 			if (item.item == I_LIFE_BANK):
 				lifeBankCharges += 1
 		elif item.item >= I_OFST_TRAP and item.item < I_OFST_FILL:
-			if (!syncing): trapQueue.append(int(item.item))
+			trapQueue.append(int(item.item))
 	CheckDONAccess()
 	
 func CheckDONAccess() -> void:

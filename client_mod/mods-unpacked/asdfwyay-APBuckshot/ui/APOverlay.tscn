@@ -440,7 +440,6 @@ vertical_alignment = 2
 
 [node name="LifeBankCanvas" type="CanvasLayer" parent="."]
 layer = 4
-visible = false
 
 [node name="LifeBank" type="Control" parent="LifeBankCanvas"]
 layout_mode = 3
@@ -463,7 +462,6 @@ expand_mode = 2
 
 [node name="ChargeCountCanvas" type="CanvasLayer" parent="LifeBankCanvas/LifeBank/LifeBankContainer/Icon"]
 layer = 3
-visible = false
 
 [node name="ChargeCountContainer" type="Panel" parent="LifeBankCanvas/LifeBank/LifeBankContainer/Icon/ChargeCountCanvas"]
 offset_left = 56.0
@@ -496,7 +494,7 @@ transparent_bg = true
 handle_input_locally = false
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 0
+render_target_update_mode = 4
 
 [node name="Camera3D" type="Camera3D" parent="LifeBankCanvas/LifeBank/IconTextureContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.047, 0)
@@ -525,11 +523,6 @@ theme_override_constants/margin_bottom = 10
 [node name="HBoxContainer" type="HBoxContainer" parent="TrapIndicators/OuterIndicatorContainer"]
 layout_mode = 2
 
-[node name="DeathLinkIndicator" type="TextureRect" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer"]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-expand_mode = 3
-
 [node name="StolenIndicator" type="SubViewportContainer" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer"]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
@@ -552,6 +545,11 @@ transform = Transform3D(-0.707107, 0.707107, 3.09086e-08, 0, -4.37114e-08, 1, 0.
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/StolenIndicator/IndicatorVP"]
 transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="DeathLinkIndicator" type="TextureRect" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 3
 
 [node name="SchrodingerIndicator" type="Node" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer"]
 script = ExtResource("5_rrwm1")
