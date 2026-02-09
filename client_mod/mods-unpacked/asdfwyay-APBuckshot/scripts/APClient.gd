@@ -164,6 +164,7 @@ func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 				lifeBankCharges += 1
 		elif item.item >= I_OFST_TRAP and item.item < I_OFST_FILL:
 			trapQueue.append(int(item.item))
+	itemIndex = recItemsPck.index + recItemsPck.items.size()
 	CheckDONAccess()
 	
 func CheckDONAccess() -> void:
@@ -199,8 +200,6 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				
 				if (syncing || recItemsPck.index == itemIndex):
 					ReceiveItem(recItemsPck)
-					if (!syncing):
-						itemIndex = recItemsPck.index + 1
 					syncing = false
 				else:
 					resetLifeBank()
@@ -215,7 +214,7 @@ func ParsePacket(packet: PackedByteArray) -> void:
 
 				print(deathLink, bouncedPck.tags)
 				
-				if (deathLink and !deathLinkCD
+				if (deathLink and !deathLinkCD and bouncedPck.source != slot
 				and bouncedPck.tags and "DeathLink" in bouncedPck.tags):
 					awaitingDeathLink = true
 					
