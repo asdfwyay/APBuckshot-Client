@@ -31,22 +31,41 @@ func EndMainBatch(chain: ModLoaderHookChain):
 
 func SetupDeskUI(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as RoundManager
-	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
+	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient") 
 	
 	chain.execute_next_async()
 	
 	if ApClient.awaitingDeathLink:
-		mainNode.health_player = 1
+		var willDie: bool
+		if ApClient.lifeBankCharges > 0:
+			ApClient.lifeBankCharges -= 1
+			ApClient.awaitingDeathLink = false
+			mainNode.health_player = mainNode.currentShotgunDamage + 1
+			willDie = false
+		else:
+			mainNode.health_player = 1
+			willDie = true
+			
 		mainNode.shellSpawner.sequenceArray[0] = "live"
-
+		
+		mainNode.ClearDeskUI(true)
+		mainNode.perm.SetIndicators(false)
+		mainNode.perm.SetInteractionPermissions(false)
+		mainNode.perm.RevertDescriptionUI()
+	
 		mainNode.camera.BeginLerp("enemy")
 		await mainNode.get_tree().create_timer(0.6, false).timeout
 		mainNode.dealerAI.GrabShotgun()
 		await mainNode.get_tree().create_timer(0.9, false).timeout
 		mainNode.itemManager.dialogue.ShowText_ForDuration(
-			"YOU'VE BEEN DEATHLINKED",
+			ApClient.death_msg,
 			3.0
 		)
 		await mainNode.get_tree().create_timer(3, false).timeout
 		mainNode.dealerAI.Shoot("player")
+		
+		if not willDie:
+			mainNode.perm.SetIndicators(true)
+			mainNode.perm.SetInteractionPermissions(true)
+			mainNode.SetupDeskUI()
 	ApClient.isPlayerTurn = true
