@@ -87,6 +87,9 @@ func _on_icon_gui_input(event):
 			"/root/main/standalone managers/round manager"
 		)
 		
+		if !health_counter or !round_manager:
+			return
+		
 		var curHealth = round_manager.health_player
 		var maxHealth
 		if (round_manager.roundArray.is_empty()):
