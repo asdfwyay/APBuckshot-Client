@@ -133,6 +133,20 @@ theme_override_fonts/font = ExtResource("1_klvvj")
 theme_override_font_sizes/font_size = 14
 text = "CLOSE"
 
+[node name="ErrorNotification" type="MarginContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_constants/margin_left = 600
+theme_override_constants/margin_top = 5
+
+[node name="error_msg" type="Label" parent="ErrorNotification"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_klvvj")
+horizontal_alignment = 2
+
 [connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/slot_input" to="." method="_on_slot_input_gui_input"]
 [connection signal="text_change_rejected" from="BaseMenu/VBoxContainer/GridContainer/slot_input" to="." method="_on_slot_input_text_change_rejected"]
 [connection signal="gui_input" from="BaseMenu/VBoxContainer/GridContainer/host_input" to="." method="_on_host_input_gui_input"]
