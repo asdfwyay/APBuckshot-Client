@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://cq8t8k11xqb0q"]
+[gd_scene load_steps=11 format=3 uid="uid://cq8t8k11xqb0q"]
 
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/APOverlay.gd" id="1_oogvm"]
 [ext_resource type="FontFile" uid="uid://vhj3kkn6yn8o" path="res://fonts/fake receipt.otf" id="1_spycr"]
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/TrackerItemSlot.gd" id="3_n8s6c"]
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/LifeBank.gd" id="4_pw3aj"]
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/SchrodingerIndicator.gd" id="5_rrwm1"]
+[ext_resource type="AudioStream" uid="uid://cec8m6gf7xsuc" path="res://audio/health counter reduce health.ogg" id="6_1prmu"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_cjncx"]
 viewport_path = NodePath("Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport")
@@ -576,6 +577,26 @@ transform = Transform3D(0.707107, -0.707107, 0, -3.09086e-08, -3.09086e-08, 1, -
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator/IndicatorVPContainer/IndicatorVP"]
 transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 0, 0)
+
+[node name="Notifications" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="NotificationMarginContainer" type="MarginContainer" parent="Notifications"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 400
+theme_override_constants/margin_top = 5
+
+[node name="NotificationContainer" type="VBoxContainer" parent="Notifications/NotificationMarginContainer"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+
+[node name="NotificationPlayer" type="AudioStreamPlayer" parent="Notifications"]
+stream = ExtResource("6_1prmu")
 
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="update_transparency"]
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="update_transparency"]

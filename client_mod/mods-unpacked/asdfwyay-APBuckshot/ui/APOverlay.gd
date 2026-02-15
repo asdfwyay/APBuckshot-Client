@@ -24,13 +24,19 @@ signal update_transparency(id: float, a: float)
 @onready var life_bank_canvas: CanvasLayer = $LifeBankCanvas
 @onready var charge_count_canvas: CanvasLayer = $LifeBankCanvas/LifeBank/LifeBankContainer/Icon/ChargeCountCanvas
 
+@onready var notification_player: AudioStreamPlayer = $Notifications/NotificationPlayer
+@onready var notification_container: VBoxContainer = $Notifications/NotificationMarginContainer/NotificationContainer
+
 var tracker_visible: bool = false
 var prev_mouse_mode
+
+var current_msgs: Array = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
 	print(ApClient)
+	ApClient.send_notification.connect(_on_receive_notification)
 	
 	tracker.visible = false
 	tracker_label.visible = false
@@ -98,12 +104,14 @@ func _input(event):
 				if (tracker_visible):
 					for id in ApClient.obtainedItems:
 						update_transparency.emit(id, 0)
-					disable_dialogue_ui(dialogue_ui)
+					if dialogue_ui:
+						disable_dialogue_ui(dialogue_ui)
 					prev_mouse_mode = Input.mouse_mode
 					Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 					update_additional_info()
 				else:
-					enable_dialogue_ui(dialogue_ui)
+					if dialogue_ui:
+						enable_dialogue_ui(dialogue_ui)
 					Input.mouse_mode = prev_mouse_mode
 
 func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
@@ -162,3 +170,34 @@ func enable_dialogue_ui(dialogue_ui: Node):
 			child.mouse_filter = Control.MOUSE_FILTER_PASS
 		elif child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_STOP
+
+func _on_receive_notification(msg):
+	if current_msgs.size() >= 6:
+		var oldest_msg = current_msgs.pop_front()
+		if is_instance_valid(oldest_msg):
+			oldest_msg.queue_free()
+	
+	var msg_label = Label.new()
+	var custom_font = load("res://fonts/fake receipt.otf")
+	
+	msg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	msg_label.custom_minimum_size.x = 540
+	msg_label.add_theme_font_override("font", custom_font)
+	msg_label.text = msg
+	msg_label.modulate.a = 1.0 - 0.1*current_msgs.size()
+	
+	notification_container.add_child(msg_label)
+	current_msgs.append(msg_label)
+	notification_player.play()
+	await get_tree().create_timer(4.0).timeout
+	
+	if is_instance_valid(msg_label):
+		var tween = create_tween()
+		tween.tween_property(msg_label, "modulate:a", 0.0, 1.0)
+		await get_tree().create_timer(1.0).timeout
+	
+	if current_msgs:
+		var oldest_msg = current_msgs.pop_front()
+		if is_instance_valid(oldest_msg):
+			oldest_msg.queue_free()
+		
