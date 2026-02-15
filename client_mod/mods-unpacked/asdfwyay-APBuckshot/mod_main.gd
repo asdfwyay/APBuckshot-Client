@@ -61,6 +61,10 @@ func install_script_hook_files() -> void:
 		"res://scripts/DeathManager.gd",
 		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/DeathManager.hooks.gd"
 	)
+	ModLoaderMod.install_script_hooks(
+		"res://scripts/EndingManager.gd",
+		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/EndingManager.hooks.gd"
+	)
 
 func add_translations() -> void:
 	translations_dir_path = mod_dir_path.path_join("translations")
@@ -78,3 +82,5 @@ func _ready() -> void:
 	
 	for child in get_tree().root.get_children():
 		print(child.name)
+		
+	get_tree().set_auto_accept_quit(false)
