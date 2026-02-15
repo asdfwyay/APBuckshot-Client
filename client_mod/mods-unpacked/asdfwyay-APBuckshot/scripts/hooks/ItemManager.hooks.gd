@@ -62,3 +62,27 @@ func GrabItem(chain: ModLoaderHookChain):
 	
 	for id in old_array_amounts:
 		mainNode.amounts.array_amounts[id].amount_active = old_array_amounts[id]
+
+func GrabItems_Enemy(chain: ModLoaderHookChain):
+	var mainNode := chain.reference_object as ItemManager
+	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
+	
+	var roundManager = mainNode.roundManager
+	
+	var numItems = roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
+	var oldNumItemsGrabbed = mainNode.numberOfItemsGrabbed_enemy
+	var numRolls = min(numItems, clamp(8 - oldNumItemsGrabbed, 0, 8))
+	var missedItems = 0
+	if ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK):
+		var prob_fail = minf(
+			0.3,
+			0.1*float(ApClient.mechanicItems[ApClient.I_ITEM_LUCK])
+		)
+		for i in range(numRolls):
+			if randf() <= prob_fail:
+				missedItems += 1
+		mainNode.numberOfItemsGrabbed_enemy = 8 - numRolls + missedItems
+	
+	chain.execute_next()
+	
+	mainNode.numberOfItemsGrabbed_enemy = oldNumItemsGrabbed
