@@ -1,17 +1,23 @@
 class_name APClient extends Node
 
+signal send_notification(msg: String)
+signal send_error(msg: String)
+
 const APPacket = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPacket.gd")
 const NetworkVersion = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/NetworkVersion.gd")
 
 const Bounce = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Bounce.gd")
 const Connect = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Connect.gd")
 const ConnectUpdate = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/ConnectUpdate.gd")
+const GetDataPackage = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/GetDataPackage.gd")
 const LocationChecks = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/LocationChecks.gd")
 const StatusUpdate = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/StatusUpdate.gd")
 const Sync = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Sync.gd")
 
 const Bounced = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/Bounced.gd")
 const Connected = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/Connected.gd")
+const ConnectionRefused = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/ConnectionRefused.gd")
+const DataPackage = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/DataPackage.gd")
 const ReceivedItems = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/ReceivedItems.gd")
 const RoomInfo = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/RoomInfo.gd")
 
@@ -34,6 +40,8 @@ const I_LIFE_BANK = 12
 
 const I_ITEM_TRAP = 13
 const I_BULLET_TRAP = 14
+
+const L_CASH_OUT = 1094
 
 var shotsanityCount: int = 0
 var donAccessReq: int = 0
@@ -67,13 +75,18 @@ var socket = WebSocketPeer.new()
 var connectionState: ConnectionState = ConnectionState.DISCONNECTED
 var syncing: bool = false
 
-var CONNECTION_TIMEOUT: float = 5.0
+var CONNECTION_TIMEOUT: float = 3.0
 
 var attemptReconnection: bool = true
 var failedAttempts: int = 0
 var MAX_FAILED_ATTEMPTS: int = 5
 
 var slot_num: int = 0
+var death_msg: String = "YOU'VE BEEN DEATHLINKED"
+
+var latest_error_msg: String = ""
+
+var item_id_to_name: Dictionary = {}
 
 func _ready():
 	pass
@@ -87,6 +100,12 @@ func APConnect(_slot, _hostname, _port, _password) -> bool:
 	
 	resetLifeBank()
 	
+	if (
+		connectionState == ConnectionState.CONNECTED or
+		!attemptReconnection and connectionState != ConnectionState.DISCONNECTED
+	):
+		return false
+	
 	socket = WebSocketPeer.new()
 	connectionState = ConnectionState.CONNECTING
 	
@@ -98,12 +117,24 @@ func APConnect(_slot, _hostname, _port, _password) -> bool:
 	
 	await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 	if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
+		print("Failed wss. Attempting ws.")
 		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
 		await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 		if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
+			print("Failed ws.")
 			connectionState = ConnectionState.DISCONNECTED
 			return false
 	return true
+
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		print("Closing socket")
+		if socket and socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
+			attemptReconnection = false
+			socket.close()
+			while socket.get_ready_state() != WebSocketPeer.STATE_CLOSED:
+				socket.poll()
+		get_tree().quit()
 
 func _process(delta):
 	if deathLinkCD:
@@ -128,14 +159,19 @@ func _process(delta):
 	elif state == WebSocketPeer.STATE_CLOSED:
 		var code = socket.get_close_code()
 		var reason = socket.get_close_reason()
-		#print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
+		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
 		#set_process(false) # Stop processing.
 		if (attemptReconnection):
+			print("Attempt: %d" % [failedAttempts + 1])
+			set_process(false)
 			var result = await APConnect(slot, hostname, port, password)
 			if not result:
 				failedAttempts += 1
 			if (failedAttempts > MAX_FAILED_ATTEMPTS):
 				attemptReconnection = false
+			set_process(true)
+		else:
+			connectionState = ConnectionState.DISCONNECTED
 		
 func SendPacket(packet: APPacket) -> void:
 	socket.send_text(packet.serialize())
@@ -153,6 +189,7 @@ func SendLocation(id: float) -> void:
 	
 func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 	for item in recItemsPck.items:
+		var shouldBroadcast = true
 		if item.item == WINNER_ITEM_ID:
 			var statusUpdatePck = StatusUpdate.new(StatusUpdate.ClientStatus.CLIENT_GOAL)
 			SendPacket(statusUpdatePck)
@@ -164,6 +201,13 @@ func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 				lifeBankCharges += 1
 		elif item.item >= I_OFST_TRAP and item.item < I_OFST_FILL:
 			trapQueue.append(int(item.item))
+		else:
+			shouldBroadcast = false
+			
+		if (shouldBroadcast):
+			#print(item_id_to_name)
+			send_notification.emit("Received %s" % [item_id_to_name[item.item]])
+	
 	itemIndex = recItemsPck.index + recItemsPck.items.size()
 	CheckDONAccess()
 	
@@ -185,12 +229,12 @@ func CheckDONAccess() -> void:
 func ParsePacket(packet: PackedByteArray) -> void:
 	var incPckJSON = JSON.new()
 	var incPckData
-	var connectPck
 	
 	var err = incPckJSON.parse(packet.get_string_from_ascii())
 	if err == OK:
 		incPckData = incPckJSON.data[0]
-		print("Packet: ", incPckData)
+		if str(incPckData).length() <= 32760:
+			print("Packet: ", incPckData)
 		
 	if connectionState == ConnectionState.CONNECTED:
 		match incPckData.cmd:
@@ -213,11 +257,19 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				bouncedPck.from_dict(incPckData)
 
 				print(deathLink, bouncedPck.tags)
+				death_msg = bouncedPck.data.cause
 				
 				if (deathLink and !deathLinkCD and bouncedPck.data.source != slot
 				and bouncedPck.tags and "DeathLink" in bouncedPck.tags):
 					awaitingDeathLink = true
-					
+			"DataPackage":
+				var dataPackagePck = DataPackage.new()
+				dataPackagePck.from_dict(incPckData)
+				
+				var item_name_to_id = dataPackagePck.data["games"]["Buckshot Roulette"]["item_name_to_id"]
+				for item_name in item_name_to_id:
+					var item_id = item_name_to_id[item_name]
+					item_id_to_name[item_id] = item_name
 	else:
 		match incPckData.cmd:
 			"RoomInfo":
@@ -229,8 +281,15 @@ func ParsePacket(packet: PackedByteArray) -> void:
 					tags = ["NoText", "DeathLink"]
 				else:
 					tags = ["NoText"]
+					
+				if not item_id_to_name:
+					var getDataPackagePck = GetDataPackage.new(
+						["Buckshot Roulette"]
+					)
+					print("Sending GetDataPackage")
+					SendPacket(getDataPackagePck)
 				
-				connectPck = Connect.new(
+				var connectPck = Connect.new(
 					password,
 					"Buckshot Roulette",
 					slot,
@@ -244,8 +303,27 @@ func ParsePacket(packet: PackedByteArray) -> void:
 					tags
 				)
 				SendPacket(connectPck)
+			"DataPackage":
+				var dataPackagePck = DataPackage.new()
+				dataPackagePck.from_dict(incPckData)
+				
+				var item_name_to_id = dataPackagePck.data["games"]["Buckshot Roulette"]["item_name_to_id"]
+				for item_name in item_name_to_id:
+					var item_id = item_name_to_id[item_name]
+					item_id_to_name[item_id] = item_name
 			"ConnectionRefused":
-				SendPacket(connectPck)
+				var connectionRefusedPck = ConnectionRefused.new()
+				connectionRefusedPck.from_dict(incPckData)
+				
+				if connectionRefusedPck.errors:
+					latest_error_msg = connectionRefusedPck.errors[0]
+				else:
+					latest_error_msg = ""
+				
+				attemptReconnection = false
+				socket.close(1000, latest_error_msg)
+				
+				send_error.emit(latest_error_msg)
 			"Connected":
 				var connectedPck = Connected.new()
 				connectedPck.from_dict(incPckData)
@@ -279,6 +357,11 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				SendPacket(syncPck)
 
 func setDeathLink(value: bool) -> void:
+	deathLink = value
+	
+	if !socket or socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
+		return
+		
 	var tags
 	if value:
 		tags = ["NoText", "DeathLink"]
@@ -290,8 +373,6 @@ func setDeathLink(value: bool) -> void:
 		tags
 	)
 	SendPacket(connectUpdatePck)
-	
-	deathLink = value
 
 func resetLifeBank() -> void:
 	for i in range(I_OFST_MECH, I_OFST_TRAP):
