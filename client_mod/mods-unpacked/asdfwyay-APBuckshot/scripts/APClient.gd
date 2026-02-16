@@ -89,7 +89,7 @@ var latest_error_msg: String = ""
 var item_id_to_name: Dictionary = {}
 
 func _ready():
-	pass
+	socket.set_inbound_buffer_size(50000000)
 	#socket.connect_to_url("wss://%s:%d" % [hostname, port])
 	
 func APConnect(_slot, _hostname, _port, _password) -> bool:
@@ -107,6 +107,7 @@ func APConnect(_slot, _hostname, _port, _password) -> bool:
 		return false
 	
 	socket = WebSocketPeer.new()
+	socket.set_inbound_buffer_size(50000000)
 	connectionState = ConnectionState.CONNECTING
 	
 	var result
@@ -175,18 +176,18 @@ func _process(delta):
 		
 func SendPacket(packet: APPacket) -> void:
 	socket.send_text(packet.serialize())
-	
+
 func UpdateLocations() -> void:
 	var locationChecksPck = LocationChecks.new(checkedLocations)
 	SendPacket(locationChecksPck)
 	CheckDONAccess()
-	
+
 func SendLocation(id: float) -> void:
 	if !checkedLocations.has(id):
 		checkedLocations.append(id)
 		UpdateLocations()
 	print(checkedLocations)
-	
+
 func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 	for item in recItemsPck.items:
 		var shouldBroadcast = true
@@ -210,7 +211,7 @@ func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 	
 	itemIndex = recItemsPck.index + recItemsPck.items.size()
 	CheckDONAccess()
-	
+
 func CheckDONAccess() -> void:
 	match donAccessReq:
 		0:
@@ -286,7 +287,6 @@ func ParsePacket(packet: PackedByteArray) -> void:
 					var getDataPackagePck = GetDataPackage.new(
 						["Buckshot Roulette"]
 					)
-					print("Sending GetDataPackage")
 					SendPacket(getDataPackagePck)
 				
 				var connectPck = Connect.new(
@@ -378,7 +378,7 @@ func resetLifeBank() -> void:
 	for i in range(I_OFST_MECH, I_OFST_TRAP):
 		mechanicItems[i] = 0
 	lifeBankCharges = 0
-	
+
 func sendDeathLink() -> void:
 	var deathLinkPacket = Bounce.new(
 		[],
