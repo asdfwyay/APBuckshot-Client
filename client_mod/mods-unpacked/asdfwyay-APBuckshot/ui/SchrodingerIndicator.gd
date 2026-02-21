@@ -2,18 +2,19 @@ extends Node
 
 @export var item_resource_path: String
 
-@onready var sub_viewport = $"IndicatorVPContainer/IndicatorVP"
-
 var item_instance: MeshInstance3D
 var shell_branch
-
 var is_live: bool = false
 var time_since_last_flip: float = 0.0
+
+@onready var sub_viewport = $"IndicatorVPContainer/IndicatorVP"
+
 
 func _ready():
 	item_instance = load(item_resource_path).instantiate()
 	sub_viewport.add_child(item_instance)
 	shell_branch = item_instance.get_node("shell branch")
+
 
 func _process(delta):
 	time_since_last_flip += delta

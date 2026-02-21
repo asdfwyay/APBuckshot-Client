@@ -8,8 +8,10 @@ signal hide_tracker_info()
 @export var item_resource_path: String
 @export var vert_offset: float = 0
 
-@onready var sub_viewport = $"ItemContainer/SubViewport"
 var item_instance: MeshInstance3D
+
+@onready var sub_viewport = $"ItemContainer/SubViewport"
+
 
 func _ready():
 	item_instance = load(item_resource_path).instantiate()
@@ -18,8 +20,10 @@ func _ready():
 	item_instance.position.y = vert_offset
 	update_transparency(float(id), 0.8)
 
+
 func _process(delta):
 	random_rotate(delta)
+
 
 func random_rotate(delta):
 	var speed = 1.0
@@ -31,16 +35,19 @@ func random_rotate(delta):
 	
 	item_instance.position.y = vert_offset
 
+
 func _on_mouse_entered():
 	show_tracker_info.emit(id, item_name, sub_viewport)
+
 
 func _on_mouse_exited():
 	hide_tracker_info.emit()
 
+
 func update_transparency(set_id, a):
 	if float(id) != set_id:
 		return
-		
+	
 	item_instance.transparency = a
 	for child in item_instance.get_children():
 		if child is MeshInstance3D:

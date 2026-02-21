@@ -1,8 +1,11 @@
 extends Node2D
 
-var ApClient
-
 signal update_transparency(id: float, a: float)
+
+var ApClient
+var tracker_visible: bool = false
+var prev_mouse_mode
+var current_msgs: Array = []
 
 @onready var bg: ColorRect = $OuterContainer/Background
 @onready var connect_status: Label = $OuterContainer/InnerContainer/connect_status
@@ -10,29 +13,19 @@ signal update_transparency(id: float, a: float)
 @onready var tracker_label: MarginContainer = $Tracker/TrackerLabelContainer
 @onready var tracker_added: MarginContainer = $Tracker/TrackerAdditionalInfoContainer
 @onready var life_bank: Control = $LifeBankCanvas/LifeBank
-
 @onready var item_name: Label = $Tracker/TrackerLabelContainer/VBoxContainer/item_name
 @onready var item_status: Label = $Tracker/TrackerLabelContainer/VBoxContainer/item_status
 @onready var item_model: TextureRect = $Tracker/TrackerLabelContainer/VBoxContainer/ItemModelBG/ItemModel
-
 @onready var luck_level: Label = $Tracker/TrackerAdditionalInfoContainer/VBoxContainer/HBoxContainer/luck_level
-
 @onready var stolen_indicator: SubViewportContainer = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/StolenIndicator
 @onready var schrodinger_indicator: SubViewportContainer = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/SchrodingerIndicator/IndicatorVPContainer
 @onready var deathlink_indicator: TextureRect = $TrapIndicators/OuterIndicatorContainer/HBoxContainer/DeathLinkIndicator
-
 @onready var life_bank_canvas: CanvasLayer = $LifeBankCanvas
 @onready var charge_count_canvas: CanvasLayer = $LifeBankCanvas/LifeBank/LifeBankContainer/Icon/ChargeCountCanvas
-
 @onready var notification_player: AudioStreamPlayer = $Notifications/NotificationPlayer
 @onready var notification_container: VBoxContainer = $Notifications/NotificationMarginContainer/NotificationContainer
 
-var tracker_visible: bool = false
-var prev_mouse_mode
 
-var current_msgs: Array = []
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
 	print(ApClient)
@@ -61,7 +54,7 @@ func _ready():
 	
 	deathlink_indicator.texture = load("res://misc/defib charge_skull png.png")
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+
 func _process(delta):
 	tracker.visible = tracker_visible
 	life_bank.visible = !tracker.visible
@@ -83,7 +76,8 @@ func _process(delta):
 		ApClient.ConnectionState.CONNECTED:
 			connect_status.text = "AP CONNECTED"
 			connect_status.set("theme_override_colors/font_color", Color8(255, 255, 255))
-			
+
+
 func _on_connect_status_resized():
 	if (connect_status and bg):
 		var bg_size = connect_status.get_rect().size
@@ -92,6 +86,7 @@ func _on_connect_status_resized():
 		bg_size.y += 10
 		
 		bg.set_size(bg_size, true)
+
 
 func _input(event):
 	if event is InputEventKey:
@@ -114,10 +109,11 @@ func _input(event):
 						enable_dialogue_ui(dialogue_ui)
 					Input.mouse_mode = prev_mouse_mode
 
+
 func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
 	if not tracker_visible:
 		return
-		
+	
 	item_name.text = name
 	
 	if float(id) in ApClient.obtainedItems:
@@ -133,12 +129,14 @@ func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
 	tracker_added.visible = false
 	tracker_label.visible = true
 
+
 func _on_hide_tracker_info():
 	update_additional_info()
 	
 	tracker_label.visible = false
 	tracker_added.visible = true
-	
+
+
 func update_additional_info():
 	if (ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK)):
 		match (ApClient.mechanicItems[ApClient.I_ITEM_LUCK]):
@@ -158,9 +156,11 @@ func update_additional_info():
 		luck_level.text = "NONE"
 		luck_level.set("theme_override_colors/font_color", Color8(204, 51, 0))
 
+
 func disable_dialogue_ui(dialogue_ui: Node):
 	for child in dialogue_ui.get_children():
 		child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 
 func enable_dialogue_ui(dialogue_ui: Node):
 	for child in dialogue_ui.get_children():
@@ -170,6 +170,7 @@ func enable_dialogue_ui(dialogue_ui: Node):
 			child.mouse_filter = Control.MOUSE_FILTER_PASS
 		elif child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_STOP
+
 
 func _on_receive_notification(msg):
 	if current_msgs.size() >= 6:
@@ -200,4 +201,3 @@ func _on_receive_notification(msg):
 		var oldest_msg = current_msgs.pop_front()
 		if is_instance_valid(oldest_msg):
 			oldest_msg.queue_free()
-		

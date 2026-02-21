@@ -1,15 +1,14 @@
 extends Control
 
 var ApClient
+var icon_model
 
 @onready var icon: TextureRect = $"LifeBankContainer/Icon"
 @onready var charge_container: Panel = $"LifeBankContainer/Icon/ChargeCountCanvas/ChargeCountContainer"
 @onready var charge_label: Label = $"LifeBankContainer/Icon/ChargeCountCanvas/ChargeCountContainer/charge_count"
-
-var icon_model
 @onready var sub_viewport: SubViewport = $"IconTextureContainer/SubViewport"
 
-# Called when the node enters the scene tree for the first time.
+
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
 	
@@ -21,7 +20,7 @@ func _ready():
 	)
 	if err == OK:
 		icon_model = model_doc.generate_scene(model_state)
-
+	
 	sub_viewport.add_child(icon_model)
 	
 	icon_model.position = Vector3.ZERO
@@ -33,7 +32,7 @@ func _ready():
 	
 	charge_label.size.x = 40
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+
 func _process(delta):
 	charge_container.visible = charge_container.size.x > 50
 	
@@ -50,6 +49,7 @@ func _process(delta):
 		else:
 			charge_label.set("theme_override_colors/font_color", Color8(255, 255, 255))
 
+
 func _on_icon_mouse_entered():
 	var hover_in_tween: Tween = create_tween()
 	hover_in_tween.set_ease(Tween.EASE_OUT)
@@ -62,6 +62,7 @@ func _on_icon_mouse_entered():
 	hover_in_tween.tween_property(charge_label, "size:x", 95, 1.0)
 	
 	hover_in_tween.play()
+
 
 func _on_icon_mouse_exited():
 	var hover_out_tween: Tween = create_tween()
@@ -76,10 +77,13 @@ func _on_icon_mouse_exited():
 	
 	hover_out_tween.play()
 
+
 func _on_icon_gui_input(event):
-	if (event is InputEventMouseButton
-	and event.button_index == MOUSE_BUTTON_LEFT
-	and event.pressed):
+	if (
+		event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+	):
 		var health_counter: HealthCounter = get_tree().root.get_node(
 			"/root/main/standalone managers/health counter"
 		)
