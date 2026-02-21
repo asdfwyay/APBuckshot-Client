@@ -1,5 +1,6 @@
 extends Node
 
+
 func BeginEnding(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as EndingManager
 	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")

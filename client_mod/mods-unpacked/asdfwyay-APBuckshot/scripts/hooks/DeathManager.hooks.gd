@@ -1,5 +1,6 @@
 extends Node
 
+
 func MainDeathRoutine(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as DeathManager
 	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")

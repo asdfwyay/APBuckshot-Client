@@ -1,8 +1,11 @@
 extends Node
 
+const APCLIENT_PATH = "/root/ModLoader/asdfwyay-APBuckshot/ApClient"
+
+
 func EndMainBatch(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as RoundManager
-	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
+	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 	
 	var endless = mainNode.endless
 	var playerData = mainNode.playerData
@@ -26,12 +29,13 @@ func EndMainBatch(chain: ModLoaderHookChain):
 		if locationOffset >= 0 and locationOffset <= 35:
 			ApClient.SendLocation(22 + 2*locationOffset)
 			ApClient.SendLocation(23 + 2*locationOffset)
-			
+	
 	chain.execute_next_async()
+
 
 func SetupDeskUI(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as RoundManager
-	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient") 
+	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH) 
 	
 	chain.execute_next_async()
 	
@@ -59,7 +63,7 @@ func SetupDeskUI(chain: ModLoaderHookChain):
 		await mainNode.get_tree().create_timer(0.9, false).timeout
 		mainNode.itemManager.dialogue.ShowText_ForDuration(
 			ApClient.death_msg,
-			3.0
+			3.0,
 		)
 		await mainNode.get_tree().create_timer(3, false).timeout
 		mainNode.dealerAI.Shoot("player")
@@ -68,4 +72,5 @@ func SetupDeskUI(chain: ModLoaderHookChain):
 			mainNode.perm.SetIndicators(true)
 			mainNode.perm.SetInteractionPermissions(true)
 			mainNode.SetupDeskUI()
+	
 	ApClient.isPlayerTurn = true
