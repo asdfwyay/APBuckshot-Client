@@ -65,17 +65,16 @@ func GrabItems_Enemy(chain: ModLoaderHookChain):
 	var roundManager = mainNode.roundManager
 	
 	var numItems = roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
-	var numRolls = min(numItems, 8 - mainNode.itemArray_instances_dealer.size())
-	var missedItems = 0
 	
 	if ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK):
 		var prob_fail = minf(
 			0.3,
 			0.1*float(ApClient.mechanicItems[ApClient.I_ITEM_LUCK])
 		)
-		for i in range(numRolls):
+		for i in range(numItems):
 			if randf() <= prob_fail:
-				missedItems += 1
-		mainNode.numberOfItemsGrabbed_enemy = 8 - numRolls + missedItems
+				roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab -= 1
 	
 	chain.execute_next()
+	
+	roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab = numItems
