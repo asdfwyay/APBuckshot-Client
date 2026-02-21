@@ -62,9 +62,8 @@ func GrabItem(chain: ModLoaderHookChain):
 func GrabItems_Enemy(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as ItemManager
 	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
-	var roundManager = mainNode.roundManager
 	
-	var numItems = roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
+	var numItems = mainNode.roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
 	
 	if ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK):
 		var prob_fail = minf(
@@ -73,8 +72,8 @@ func GrabItems_Enemy(chain: ModLoaderHookChain):
 		)
 		for i in range(numItems):
 			if randf() <= prob_fail:
-				roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab -= 1
+				mainNode.roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab -= 1
 	
 	chain.execute_next()
 	
-	roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab = numItems
+	mainNode.roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab = numItems
