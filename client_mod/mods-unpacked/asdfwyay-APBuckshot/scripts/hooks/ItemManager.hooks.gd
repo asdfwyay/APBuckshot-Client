@@ -1,11 +1,13 @@
 extends Node
 
+const APCLIENT_PATH = "/root/ModLoader/asdfwyay-APBuckshot/ApClient"
+
 var old_array_amounts = {}
+
 
 func GrabItem(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as ItemManager
-	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
-	
+	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 	var roundManager = mainNode.roundManager
 	
 	var active_items = 0
@@ -17,9 +19,7 @@ func GrabItem(chain: ModLoaderHookChain):
 			active_items += mainNode.amounts.array_amounts[i].amount_active
 	
 	var item_trap: bool = false
-	print(ApClient.trapQueue)
 	if ApClient.I_ITEM_TRAP in ApClient.trapQueue:
-		print("ITEM TRAP")
 		item_trap = true
 		ApClient.trapQueue.erase(ApClient.I_ITEM_TRAP)
 	
@@ -43,20 +43,16 @@ func GrabItem(chain: ModLoaderHookChain):
 		num_rolls -= 1
 	
 	if float(pull_item) not in ApClient.obtainedItems:
-		mainNode.numberOfItemsGrabbed += 1
-		
 		var sound = load("res://audio/item grid indicator blip.ogg")
+		mainNode.numberOfItemsGrabbed += 1
 		mainNode.speaker_itemgrab.stream = sound
 		mainNode.speaker_itemgrab.play()
-		
 		return
 	
 	for id in range(2,11):
 		if float(id) not in ApClient.obtainedItems:
 			old_array_amounts[id-2] = mainNode.amounts.array_amounts[id-2].amount_active
 			mainNode.amounts.array_amounts[id-2].amount_active = 0
-			
-	print(old_array_amounts)
 	
 	chain.execute_next_async()
 	
@@ -66,13 +62,12 @@ func GrabItem(chain: ModLoaderHookChain):
 func GrabItems_Enemy(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as ItemManager
 	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
-	
 	var roundManager = mainNode.roundManager
 	
 	var numItems = roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
-	var oldNumItemsGrabbed = mainNode.numberOfItemsGrabbed_enemy
-	var numRolls = min(numItems, clamp(8 - oldNumItemsGrabbed, 0, 8))
+	var numRolls = min(numItems, 8 - mainNode.itemArray_instances_dealer.size())
 	var missedItems = 0
+	
 	if ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK):
 		var prob_fail = minf(
 			0.3,
@@ -84,5 +79,3 @@ func GrabItems_Enemy(chain: ModLoaderHookChain):
 		mainNode.numberOfItemsGrabbed_enemy = 8 - numRolls + missedItems
 	
 	chain.execute_next()
-	
-	mainNode.numberOfItemsGrabbed_enemy = oldNumItemsGrabbed
