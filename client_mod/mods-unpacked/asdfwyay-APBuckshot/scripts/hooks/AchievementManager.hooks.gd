@@ -1,8 +1,11 @@
 extends Node
 
+const APCLIENT_PATH = "/root/ModLoader/asdfwyay-APBuckshot/ApClient"
+
+
 func UnlockAchievement(chain: ModLoaderHookChain, apiname: String) -> void:
 	var mainNode := chain.reference_object as Achievement
-	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
+	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 
 	match apiname:
 		"ach1":
@@ -11,6 +14,7 @@ func UnlockAchievement(chain: ModLoaderHookChain, apiname: String) -> void:
 			ApClient.SendLocation(8)
 		"ach3":
 			ApClient.SendLocation(13)
+			ApClient.SendLocation(17)
 		"ach4":
 			ApClient.SendLocation(17)
 		"ach5":
