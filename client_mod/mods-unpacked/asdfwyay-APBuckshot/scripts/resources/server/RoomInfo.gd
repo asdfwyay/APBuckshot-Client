@@ -23,6 +23,7 @@ enum Permission {
 @export var seed_name: String
 @export var time: float
 
+
 func _init(
 	_version = NetworkVersion.new(),
 	_generator_version = NetworkVersion.new(),
@@ -34,7 +35,7 @@ func _init(
 	_games = [],
 	_datapackage_checksums = {},
 	_seed_name = "",
-	_time = 0.0
+	_time = 0.0,
 ) -> void:
 	cmd = "RoomInfo"
 	

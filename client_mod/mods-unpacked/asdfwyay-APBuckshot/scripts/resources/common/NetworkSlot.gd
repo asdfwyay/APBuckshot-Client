@@ -12,7 +12,13 @@ enum SlotType {
 @export var type: SlotType
 @export var group_members: Array[int]
 
-func _init(_name = "", _game = "", _type = SlotType.SPECTATOR, _group_members = []) -> void:
+
+func _init(
+	_name = "",
+	_game = "",
+	_type = SlotType.SPECTATOR,
+	_group_members = [],
+) -> void:
 	cmd = ""
 	
 	name = _name

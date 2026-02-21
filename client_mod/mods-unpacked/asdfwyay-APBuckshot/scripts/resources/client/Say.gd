@@ -3,6 +3,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 
 @export var text: String
 
+
 func _init(_text = "") -> void:
 	cmd = "Say"
 	

@@ -4,6 +4,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 @export var locations: Array[int]
 @export var create_as_hint: int
 
+
 func _init(_locations = [], _create_as_hint = 0) -> void:
 	cmd = "LocationScouts"
 	

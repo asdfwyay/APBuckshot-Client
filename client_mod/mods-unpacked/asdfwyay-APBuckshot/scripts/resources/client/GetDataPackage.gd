@@ -3,7 +3,8 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 
 @export var games: Array
 
+
 func _init(_games = []) -> void:
 	cmd = "GetDataPackage"
-
+	
 	games = _games

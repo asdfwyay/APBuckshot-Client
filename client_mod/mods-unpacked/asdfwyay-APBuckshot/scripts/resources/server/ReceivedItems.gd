@@ -4,6 +4,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 @export var index: int
 @export var items: Array
 
+
 func _init(_index = 0, _items = []) -> void:
 	cmd = "ReceivedItems"
 	

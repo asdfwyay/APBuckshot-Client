@@ -3,6 +3,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 
 @export var errors: Array #String
 
+
 func _init(_errors = []) -> void:
 	cmd = "ConnectionRefused"
 	

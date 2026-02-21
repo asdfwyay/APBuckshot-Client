@@ -2,14 +2,17 @@ class_name APPacket extends Resource
 
 @export var cmd: String
 
+
 func _init(_cmd = "") -> void:
 	cmd = _cmd
-	
+
+
 func from_dict(dict) -> void:
 	for property in self.get_property_list():
-		if (property.usage & PROPERTY_USAGE_SCRIPT_VARIABLE) && (property.name in dict):
+		if (property.usage & PROPERTY_USAGE_SCRIPT_VARIABLE) and (property.name in dict):
 			set(property.name, dict[property.name])
-	
+
+
 func to_dict() -> Dictionary:
 	var result = {}
 	
@@ -24,6 +27,7 @@ func to_dict() -> Dictionary:
 		result.erase("cmd")
 			
 	return result
-	
+
+
 func serialize() -> String:
 	return "[" + JSON.stringify(self.to_dict()) + "]"

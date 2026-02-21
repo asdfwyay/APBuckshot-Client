@@ -6,6 +6,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 @export var player: int
 @export var flags: int
 
+
 func _init(_item = 0, _location = 1, _player = "", _flags = "") -> void:
 	cmd = ""
 	

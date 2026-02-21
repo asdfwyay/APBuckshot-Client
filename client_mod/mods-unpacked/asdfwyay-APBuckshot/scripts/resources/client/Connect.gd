@@ -12,6 +12,7 @@ const NetworkVersion = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/
 @export var tags: Array
 @export var slot_data: bool
 
+
 func _init(
 	_password = "",
 	_game = "Buckshot Roulette",
@@ -20,7 +21,7 @@ func _init(
 	_version = NetworkVersion.new(),
 	_items_handling = 0b111,
 	_tags = ["NoText"],
-	_slot_data = true
+	_slot_data = true,
 ) -> void:
 	cmd = "Connect"
 	

@@ -6,6 +6,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 @export var alias: String
 @export var name: String
 
+
 func _init(_team = 0, _slot = 1, _alias = "", _name = "") -> void:
 	cmd = ""
 	

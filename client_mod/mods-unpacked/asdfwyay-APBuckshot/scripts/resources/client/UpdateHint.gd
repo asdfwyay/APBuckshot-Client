@@ -13,9 +13,10 @@ enum HintStatus {
 @export var location: int
 @export var status: HintStatus
 
+
 func _init(_player = 0, _location = 0, _status = HintStatus.HINT_UNSPECIFIED) -> void:
 	cmd = "UpdateHint"
-
+	
 	player = _player
 	location = _location
 	status = _status

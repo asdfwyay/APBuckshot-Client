@@ -11,6 +11,7 @@ enum ClientStatus {
 
 @export var status: ClientStatus
 
+
 func _init(_status = ClientStatus.CLIENT_UNKNOWN) -> void:
 	cmd = "StatusUpdate"
 	

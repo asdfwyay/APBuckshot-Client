@@ -13,7 +13,12 @@ enum HintStatus {
 @export var player: int
 @export var status: HintStatus
 
-func _init(_locations = [], _player = 0, _status = HintStatus.HINT_UNSPECIFIED) -> void:
+
+func _init(
+	_locations = [],
+	_player = 0,
+	_status = HintStatus.HINT_UNSPECIFIED,
+) -> void:
 	cmd = "CreateHints"
 	
 	locations = _locations

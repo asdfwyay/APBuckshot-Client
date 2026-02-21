@@ -3,6 +3,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 
 @export var locations: Array
 
+
 func _init(_locations = []) -> void:
 	cmd = "LocationChecks"
 	

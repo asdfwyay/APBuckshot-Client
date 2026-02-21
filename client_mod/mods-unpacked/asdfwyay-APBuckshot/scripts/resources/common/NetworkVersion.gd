@@ -5,12 +5,14 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 @export var minor: int
 @export var build: int
 
+
 func _init(_major = 0, _minor = 6, _build = 6) -> void:
 	cmd = ""
 	
 	major = _major
 	minor = _minor
 	build = _build
+
 
 func to_dict() -> Dictionary:
 	return {

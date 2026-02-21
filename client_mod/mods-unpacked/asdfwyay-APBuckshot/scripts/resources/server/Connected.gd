@@ -10,6 +10,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 @export var slot_info: Dictionary #[int, NetworkSlot]
 @export var hint_points: int
 
+
 func _init(
 	_team = 0,
 	_slot = 1,
@@ -18,7 +19,7 @@ func _init(
 	_checked_locations = [],
 	_slot_data = {},
 	_slot_info = {},
-	_hint_points = 0
+	_hint_points = 0,
 ) -> void:
 	cmd = "Connected"
 	
