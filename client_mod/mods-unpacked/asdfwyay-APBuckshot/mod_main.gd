@@ -8,13 +8,14 @@ var extensions_dir_path := ""
 var hooks_dir_path := ""
 var translations_dir_path := ""
 
+
 func _init() -> void:
 	mod_dir_path = ModLoaderMod.get_unpacked_dir().path_join(ASDFWYAY_APBUCKSHOT_DIR)
-
+	
 	var ApClient = load("res://mods-unpacked/asdfwyay-APBuckshot/scripts/APClient.gd").new()
 	ApClient.name = "ApClient"
 	add_child(ApClient)
-
+	
 	# Add extensions
 	install_script_extensions()
 	# Add hooks
@@ -22,10 +23,12 @@ func _init() -> void:
 	# Add translations
 	add_translations()
 
+
 func install_script_extensions() -> void:
 	extensions_dir_path = mod_dir_path.path_join("extensions")
 	# ModLoaderMod.install_script_extension(extensions_dir_path.path_join(...))
-	
+
+
 func install_script_hook_files() -> void:
 	hooks_dir_path = mod_dir_path.path_join("hooks")
 	
@@ -65,10 +68,19 @@ func install_script_hook_files() -> void:
 		"res://scripts/EndingManager.gd",
 		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/EndingManager.hooks.gd"
 	)
+	#ModLoaderMod.install_script_hooks(
+	#	"res://multiplayer/scripts/MP_LobbyManager.gd",
+	#	"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/multiplayer/MP_LobbyManager.hooks.gd"
+	#)
+	#ModLoaderMod.install_script_hooks(
+	#	"res://multiplayer/scripts/MP_LobbyUI.gd",
+	#	"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/multiplayer/MP_LobbyUI.hooks.gd"
+	#)
+
 
 func add_translations() -> void:
 	translations_dir_path = mod_dir_path.path_join("translations")
-	# ModLoaderMod.add_translation(translations_dir_path.path_join(...))
+
 
 func _ready() -> void:
 	ModLoaderLog.info("Ready!", ASDFWYAY_APBUCKSHOT_LOG_NAME)
@@ -82,5 +94,5 @@ func _ready() -> void:
 	
 	for child in get_tree().root.get_children():
 		print(child.name)
-		
+	
 	get_tree().set_auto_accept_quit(false)
