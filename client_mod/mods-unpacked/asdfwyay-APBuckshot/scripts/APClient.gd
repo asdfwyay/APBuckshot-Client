@@ -3,6 +3,13 @@ class_name APClient extends Node
 signal send_notification(msg: String)
 signal send_error(msg: String)
 
+enum ConnectionState {
+	DISCONNECTED = 0,
+	CONNECTING = 1,
+	CONNECTED = 2,
+	DISCONNECTING = 3
+}
+
 const APPacket = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPacket.gd")
 const NetworkVersion = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/NetworkVersion.gd")
 
@@ -21,27 +28,18 @@ const DataPackage = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/res
 const ReceivedItems = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/ReceivedItems.gd")
 const RoomInfo = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/RoomInfo.gd")
 
-enum ConnectionState {
-	DISCONNECTED = 0,
-	CONNECTING = 1,
-	CONNECTED = 2,
-	DISCONNECTING = 3
-}
-
-const L_OFST_SS = 94
-const WINNER_ITEM_ID = 26
+const uuidUtil = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/utils/uuid.gd")
 
 const I_OFST_MECH = 11
 const I_OFST_TRAP = 13
 const I_OFST_FILL = 15
-
 const I_ITEM_LUCK = 11
 const I_LIFE_BANK = 12
-
 const I_ITEM_TRAP = 13
 const I_BULLET_TRAP = 14
-
+const L_OFST_SS = 94
 const L_CASH_OUT = 1094
+const WINNER_ITEM_ID = 26
 
 var shotsanityCount: int = 0
 var donAccessReq: int = 0
@@ -57,8 +55,6 @@ var slot: String = ""
 var hostname: String = "archipelago.gg"
 var port: String = "38281"
 var password: String = ""
-
-const uuidUtil = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/utils/uuid.gd")
 
 var itemIndex: int = 0
 
@@ -88,10 +84,12 @@ var latest_error_msg: String = ""
 
 var item_id_to_name: Dictionary = {}
 
+
 func _ready():
 	socket.set_inbound_buffer_size(50000000)
 	#socket.connect_to_url("wss://%s:%d" % [hostname, port])
-	
+
+
 func APConnect(_slot, _hostname, _port, _password) -> bool:
 	slot = _slot
 	hostname = _hostname
@@ -127,6 +125,7 @@ func APConnect(_slot, _hostname, _port, _password) -> bool:
 			return false
 	return true
 
+
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		print("Closing socket")
@@ -137,6 +136,7 @@ func _notification(what):
 				socket.poll()
 		get_tree().quit()
 
+
 func _process(delta):
 	if deathLinkCD:
 		deathLinkCDTimer += delta
@@ -146,7 +146,7 @@ func _process(delta):
 	
 	if connectionState == ConnectionState.DISCONNECTED:
 		return
-		
+	
 	socket.poll()
 	var state = socket.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
@@ -155,13 +155,11 @@ func _process(delta):
 		while socket.get_available_packet_count():
 			ParsePacket(socket.get_packet())
 	elif state == WebSocketPeer.STATE_CLOSING:
-		# Keep polling to achieve proper close.
 		pass
 	elif state == WebSocketPeer.STATE_CLOSED:
 		var code = socket.get_close_code()
 		var reason = socket.get_close_reason()
 		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-		#set_process(false) # Stop processing.
 		if (attemptReconnection):
 			print("Attempt: %d" % [failedAttempts + 1])
 			set_process(false)
@@ -173,20 +171,24 @@ func _process(delta):
 			set_process(true)
 		else:
 			connectionState = ConnectionState.DISCONNECTED
-		
+
+
 func SendPacket(packet: APPacket) -> void:
 	socket.send_text(packet.serialize())
+
 
 func UpdateLocations() -> void:
 	var locationChecksPck = LocationChecks.new(checkedLocations)
 	SendPacket(locationChecksPck)
 	CheckDONAccess()
 
+
 func SendLocation(id: float) -> void:
 	if !checkedLocations.has(id):
 		checkedLocations.append(id)
 		UpdateLocations()
 	print(checkedLocations)
+
 
 func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 	for item in recItemsPck.items:
@@ -201,16 +203,17 @@ func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 			if (item.item == I_LIFE_BANK):
 				lifeBankCharges += 1
 		elif item.item >= I_OFST_TRAP and item.item < I_OFST_FILL:
-			trapQueue.append(int(item.item))
+			if (!syncing):
+				trapQueue.append(int(item.item))
 		else:
 			shouldBroadcast = false
-			
+		
 		if (shouldBroadcast):
-			#print(item_id_to_name)
 			send_notification.emit("Received %s" % [item_id_to_name[item.item]])
 	
 	itemIndex = recItemsPck.index + recItemsPck.items.size()
 	CheckDONAccess()
+
 
 func CheckDONAccess() -> void:
 	match donAccessReq:
@@ -222,10 +225,11 @@ func CheckDONAccess() -> void:
 			canAccessDON = 1.0 in obtainedItems
 		3:
 			canAccessDON = 5.0 in checkedLocations and 1.0 in obtainedItems
-			
+	
 	if canAccessDON:
 		var unlocker = Unlocker.new()
 		unlocker.UnlockMode()
+
 
 func ParsePacket(packet: PackedByteArray) -> void:
 	var incPckJSON = JSON.new()
@@ -236,7 +240,7 @@ func ParsePacket(packet: PackedByteArray) -> void:
 		incPckData = incPckJSON.data[0]
 		if str(incPckData).length() <= 32760:
 			print("Packet: ", incPckData)
-		
+	
 	if connectionState == ConnectionState.CONNECTED:
 		match incPckData.cmd:
 			"ReceivedItems":
@@ -256,12 +260,16 @@ func ParsePacket(packet: PackedByteArray) -> void:
 			"Bounced":
 				var bouncedPck = Bounced.new()
 				bouncedPck.from_dict(incPckData)
-
-				print(deathLink, bouncedPck.tags)
-				death_msg = bouncedPck.data.cause
 				
-				if (deathLink and !deathLinkCD and bouncedPck.data.source != slot
-				and bouncedPck.tags and "DeathLink" in bouncedPck.tags):
+				if (
+					deathLink
+					and !deathLinkCD
+					and bouncedPck.data
+					and bouncedPck.data.source != slot
+					and bouncedPck.tags
+					and "DeathLink" in bouncedPck.tags
+				):
+					death_msg = bouncedPck.data.cause
 					awaitingDeathLink = true
 			"DataPackage":
 				var dataPackagePck = DataPackage.new()
@@ -282,7 +290,7 @@ func ParsePacket(packet: PackedByteArray) -> void:
 					tags = ["NoText", "DeathLink"]
 				else:
 					tags = ["NoText"]
-					
+				
 				if not item_id_to_name:
 					var getDataPackagePck = GetDataPackage.new(
 						["Buckshot Roulette"]
@@ -356,12 +364,13 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				syncing = true
 				SendPacket(syncPck)
 
+
 func setDeathLink(value: bool) -> void:
 	deathLink = value
 	
 	if !socket or socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		return
-		
+	
 	var tags
 	if value:
 		tags = ["NoText", "DeathLink"]
@@ -374,10 +383,12 @@ func setDeathLink(value: bool) -> void:
 	)
 	SendPacket(connectUpdatePck)
 
+
 func resetLifeBank() -> void:
 	for i in range(I_OFST_MECH, I_OFST_TRAP):
 		mechanicItems[i] = 0
 	lifeBankCharges = 0
+
 
 func sendDeathLink() -> void:
 	var deathLinkPacket = Bounce.new(
@@ -387,7 +398,7 @@ func sendDeathLink() -> void:
 		{
 			"time": Time.get_unix_time_from_system(),
 			"cause": "%s took a bullet to the face." % [slot],
-			"source": slot
-		}
+			"source": slot,
+		},
 	)
 	SendPacket(deathLinkPacket)
