@@ -10,6 +10,12 @@ func GrabItem(chain: ModLoaderHookChain):
 	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 	var roundManager = mainNode.roundManager
 	
+	print("Starting GrabItem")
+	
+	if ApClient.hint_mode:
+		chain.execute_next_async()
+		return
+	
 	var active_items = 0
 	var zero_active_count = 0
 	for i in range(9):
@@ -58,23 +64,26 @@ func GrabItem(chain: ModLoaderHookChain):
 	
 	for id in old_array_amounts:
 		mainNode.amounts.array_amounts[id].amount_active = old_array_amounts[id]
+		
+	print("Finishing GrabItem")
 
-func GrabItems_Enemy(chain: ModLoaderHookChain):
-	var mainNode := chain.reference_object as ItemManager
-	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
-	var roundManager = mainNode.roundManager
-	
-	var numItems = roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
-	
-	if ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK):
-		var prob_fail = minf(
-			0.3,
-			0.1*float(ApClient.mechanicItems[ApClient.I_ITEM_LUCK])
-		)
-		for i in range(numItems):
-			if randf() <= prob_fail:
-				mainNode.roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab -= 1
-	
-	chain.execute_next()
-	
-	mainNode.roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab = numItems
+#func GrabItems_Enemy(chain: ModLoaderHookChain):
+#	var mainNode := chain.reference_object as ItemManager
+#	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
+#	var roundManager = mainNode.roundManager
+#
+#	var numItems = roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
+#	var numRolls = min(numItems, 8 - mainNode.itemArray_instances_dealer.size())
+#	var missedItems = 0
+#
+#	if ApClient.mechanicItems.has(ApClient.I_ITEM_LUCK):
+#		var prob_fail = minf(
+#			0.3,
+#			0.1*float(ApClient.mechanicItems[ApClient.I_ITEM_LUCK])
+#		)
+#		for i in range(numRolls):
+#			if randf() <= prob_fail:
+#				missedItems += 1
+#		mainNode.numberOfItemsGrabbed_enemy = 8 - numRolls + missedItems
+#
+#	chain.execute_next()
