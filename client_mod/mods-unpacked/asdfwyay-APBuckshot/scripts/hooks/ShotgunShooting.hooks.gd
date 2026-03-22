@@ -18,7 +18,7 @@ func Shoot(chain: ModLoaderHookChain, who : String):
 		ApClient.trapQueue.erase(ApClient.I_BULLET_TRAP)
 	
 	if (
-		mainNode.shellSpawner.sequenceArray[0] == "live"  and who == "dealer"
+		mainNode.shellSpawner.sequenceArray[0] == "live"     and who == "dealer"
 		or mainNode.shellSpawner.sequenceArray[0] == "blank" and who == "self"
 	):
 		ApClient.shotsanityCount += 1
@@ -26,5 +26,15 @@ func Shoot(chain: ModLoaderHookChain, who : String):
 			ApClient.SendLocation(
 				ApClient.L_OFST_SS + ApClient.shotsanityCount - 1
 			)
+		
+		if who == "dealer":
+			ApClient.streak += 1
+			print(ApClient.streak)
+			if ApClient.streak >= 2 and ApClient.streak <= 10:
+				ApClient.SendLocation(
+					ApClient.L_OFST_STS + ApClient.streak - 2
+				)
+	elif mainNode.shellSpawner.sequenceArray[0] == "live" and who == "self":
+		ApClient.streak = 0
 	
 	chain.execute_next_async([who])
