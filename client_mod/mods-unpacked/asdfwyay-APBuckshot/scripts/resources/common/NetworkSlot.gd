@@ -10,7 +10,7 @@ enum SlotType {
 @export var name: String
 @export var game: String
 @export var type: SlotType
-@export var group_members: Array[int]
+@export var group_members: Array #int
 
 
 func _init(

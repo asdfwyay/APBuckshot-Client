@@ -1,7 +1,7 @@
 class_name LocationScouts
 extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPacket.gd"
 
-@export var locations: Array[int]
+@export var locations: Array #int
 @export var create_as_hint: int
 
 

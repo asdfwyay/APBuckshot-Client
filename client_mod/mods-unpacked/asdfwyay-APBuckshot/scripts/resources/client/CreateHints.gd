@@ -9,7 +9,7 @@ enum HintStatus {
 	HINT_FOUND = 40
 }
 
-@export var locations: Array[int]
+@export var locations: Array #int
 @export var player: int
 @export var status: HintStatus
 
