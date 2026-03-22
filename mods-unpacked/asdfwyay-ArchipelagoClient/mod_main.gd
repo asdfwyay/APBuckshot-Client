@@ -1,7 +1,7 @@
 extends Node
 
-const ASDFWYAY_ArchipelagoClient_DIR := "asdfwyay-ArchipelagoClient"
-const ASDFWYAY_ArchipelagoClient_LOG_NAME := "asdfwyay-ArchipelagoClient:Main"
+const ASDFWYAY_ARCHIPELAGOCLIENT_DIR := "asdfwyay-ArchipelagoClient"
+const ASDFWYAY_ARCHIPELAGOCLIENT_LOG_NAME := "asdfwyay-ArchipelagoClient:Main"
 
 var mod_dir_path := ""
 var extensions_dir_path := ""
@@ -10,7 +10,7 @@ var translations_dir_path := ""
 
 
 func _init() -> void:
-	mod_dir_path = ModLoaderMod.get_unpacked_dir().path_join(ASDFWYAY_ArchipelagoClient_DIR)
+	mod_dir_path = ModLoaderMod.get_unpacked_dir().path_join(ASDFWYAY_ARCHIPELAGOCLIENT_DIR)
 	
 	var ApClient = load("res://mods-unpacked/asdfwyay-ArchipelagoClient/scripts/APClient.gd").new()
 	ApClient.name = "ApClient"
@@ -87,7 +87,7 @@ func add_translations() -> void:
 
 
 func _ready() -> void:
-	ModLoaderLog.info("Ready!", ASDFWYAY_ArchipelagoClient_LOG_NAME)
+	ModLoaderLog.info("Ready!", ASDFWYAY_ARCHIPELAGOCLIENT_LOG_NAME)
 	
 	if FileAccess.file_exists("user://buckshotroulette_pills.shell.bkp"):
 		DirAccess.copy_absolute(
