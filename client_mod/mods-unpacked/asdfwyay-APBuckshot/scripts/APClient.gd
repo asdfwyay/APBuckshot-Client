@@ -2,6 +2,8 @@ class_name APClient extends Node
 
 signal send_notification(msg: String)
 signal send_error(msg: String)
+signal send_chat(msg: String)
+signal data_store_retrieved(data)
 
 enum ConnectionState {
 	DISCONNECTED = 0,
@@ -11,13 +13,21 @@ enum ConnectionState {
 }
 
 const APPacket = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPacket.gd")
+const JSONMessagePart = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/JSONMessagePart.gd")
+const NetworkPlayer = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/NetworkPlayer.gd")
+const NetworkSlot = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/NetworkSlot.gd")
 const NetworkVersion = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/NetworkVersion.gd")
 
 const Bounce = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Bounce.gd")
 const Connect = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Connect.gd")
 const ConnectUpdate = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/ConnectUpdate.gd")
+const CreateHints = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/CreateHints.gd")
+const Get = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Get.gd")
 const GetDataPackage = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/GetDataPackage.gd")
 const LocationChecks = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/LocationChecks.gd")
+const LocationScouts = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/LocationScouts.gd")
+const Say = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Say.gd")
+const Set = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Set.gd")
 const StatusUpdate = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/StatusUpdate.gd")
 const Sync = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Sync.gd")
 
@@ -25,6 +35,8 @@ const Bounced = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resourc
 const Connected = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/Connected.gd")
 const ConnectionRefused = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/ConnectionRefused.gd")
 const DataPackage = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/DataPackage.gd")
+const LocationInfo = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/LocationInfo.gd")
+const PrintJSON = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/PrintJSON.gd")
 const ReceivedItems = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/ReceivedItems.gd")
 const RoomInfo = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/server/RoomInfo.gd")
 
@@ -38,10 +50,14 @@ const I_LIFE_BANK = 12
 const I_ITEM_TRAP = 13
 const I_BULLET_TRAP = 14
 const L_OFST_SS = 94
-const L_CASH_OUT = 1094
+const L_OFST_STS = 1094
+const L_CASH_OUT = 1103
 const WINNER_ITEM_ID = 26
 
+var hint_mode: bool = false
+
 var shotsanityCount: int = 0
+var streak: int = 0
 var donAccessReq: int = 0
 var canAccessDON: bool = false
 var goalAmt: int = 0
@@ -58,9 +74,9 @@ var password: String = ""
 
 var itemIndex: int = 0
 
-var inventory: Array = []
 var mechanicItems: Dictionary = {} #[int, int]
 var checkedLocations: Array = []
+var missingLocations: Array = []
 var obtainedItems: Array = []
 var trapQueue: Array = []
 
@@ -82,8 +98,21 @@ var death_msg: String = "YOU'VE BEEN DEATHLINKED"
 
 var latest_error_msg: String = ""
 
-var item_id_to_name: Dictionary = {}
+var games_present: Array = []
 
+var item_name_to_id: Dictionary = {}
+var item_id_to_name: Dictionary = {}
+var location_name_to_id: Dictionary = {}
+var location_id_to_name: Dictionary = {}
+
+var players: Dictionary = {}
+var slot_info: Dictionary = {}
+var data_store: Dictionary = {}
+
+var prog_locs: Array = []
+var useful_locs: Array = []
+var filler_locs: Array = []
+var trap_locs: Array = []
 
 func _ready():
 	socket.set_inbound_buffer_size(50000000)
@@ -184,6 +213,60 @@ func UpdateLocations() -> void:
 
 
 func SendLocation(id: float) -> void:
+	if hint_mode:
+		if id >= L_OFST_SS:
+			return
+		
+		var r: float = randf()
+		var location
+		var status
+		
+		var getPck = Get.new("BuckshotRouletteHint_%d" % slot_num)
+		SendPacket(getPck)
+		
+		var retrieved_data = await data_store_retrieved
+		print(retrieved_data)
+		if (
+			retrieved_data
+			and retrieved_data.has("BuckshotRouletteHint_%d" % slot_num)
+			and id in retrieved_data["BuckshotRouletteHint_%d" % slot_num]
+		):
+			return
+		
+		if r <= 0.2 and prog_locs:
+			location = prog_locs.pop_front()
+			status = CreateHints.HintStatus.HINT_UNSPECIFIED
+		elif r <= 0.5 and useful_locs:
+			location = useful_locs.pop_front()
+			status = CreateHints.HintStatus.HINT_UNSPECIFIED
+		elif filler_locs:
+			location = filler_locs.pop_front()
+			status = CreateHints.HintStatus.HINT_UNSPECIFIED
+		elif trap_locs:
+			location = trap_locs.pop_front()
+			status = CreateHints.HintStatus.HINT_AVOID
+		else:
+			return
+		
+		var createHintsPck = CreateHints.new(
+			[location],
+			slot_num,
+			status
+		)
+		SendPacket(createHintsPck)
+		
+		var setPck = Set.new(
+			"BuckshotRouletteHint_%d" % slot_num,
+			[],
+			false,
+			[
+				{"operation": "default", "value": 0},
+				{"operation": "update", "value": [id]},
+			]
+		)
+		SendPacket(setPck)
+		return
+	
 	if !checkedLocations.has(id):
 		checkedLocations.append(id)
 		UpdateLocations()
@@ -191,6 +274,9 @@ func SendLocation(id: float) -> void:
 
 
 func ReceiveItem(recItemsPck: ReceivedItems) -> void:
+	if hint_mode:
+		return
+	
 	for item in recItemsPck.items:
 		var shouldBroadcast = true
 		if item.item == WINNER_ITEM_ID:
@@ -209,7 +295,7 @@ func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 			shouldBroadcast = false
 		
 		if (shouldBroadcast):
-			send_notification.emit("Received %s" % [item_id_to_name[item.item]])
+			send_notification.emit("Received %s" % [item_id_to_name["Buckshot Roulette"][item.item]])
 	
 	itemIndex = recItemsPck.index + recItemsPck.items.size()
 	CheckDONAccess()
@@ -272,34 +358,54 @@ func ParsePacket(packet: PackedByteArray) -> void:
 					death_msg = bouncedPck.data.cause
 					awaitingDeathLink = true
 			"DataPackage":
-				var dataPackagePck = DataPackage.new()
-				dataPackagePck.from_dict(incPckData)
+				handleDataPackage(incPckData)
+			"PrintJSON":
+				handleMessage(incPckData)
+			"Retrieved":
+				data_store_retrieved.emit(incPckData["keys"])
+			"LocationInfo":
+				prog_locs = []
+				useful_locs = []
+				filler_locs = []
+				trap_locs = []
 				
-				var item_name_to_id = dataPackagePck.data["games"]["Buckshot Roulette"]["item_name_to_id"]
-				for item_name in item_name_to_id:
-					var item_id = item_name_to_id[item_name]
-					item_id_to_name[item_id] = item_name
+				var items_in_locations = incPckData["locations"]
+				for item in items_in_locations:
+					match int(item["flags"]):
+						0b001:
+							prog_locs.append(int(item["location"]))
+						0b010:
+							useful_locs.append(int(item["location"]))
+						0b100:
+							trap_locs.append(int(item["location"]))
+						_:
+							filler_locs.append(int(item["location"]))
+				
+				prog_locs.shuffle()
+				useful_locs.shuffle()
+				filler_locs.shuffle()
+				trap_locs.shuffle()
 	else:
 		match incPckData.cmd:
 			"RoomInfo":
 				var roomInfoPck = RoomInfo.new()
 				roomInfoPck.from_dict(incPckData)
 				
-				var tags
-				if deathLink:
-					tags = ["NoText", "DeathLink"]
-				else:
-					tags = ["NoText"]
+				games_present = roomInfoPck.games
 				
-				if not item_id_to_name:
-					var getDataPackagePck = GetDataPackage.new(
-						["Buckshot Roulette"]
-					)
+				var tags = []
+				if deathLink:
+					tags.append("DeathLink")
+				if hint_mode:
+					tags.append("HintGame")
+				
+				if not item_id_to_name or not location_id_to_name:
+					var getDataPackagePck = GetDataPackage.new(games_present)
 					SendPacket(getDataPackagePck)
 				
 				var connectPck = Connect.new(
 					password,
-					"Buckshot Roulette",
+					"" if hint_mode else "Buckshot Roulette",
 					slot,
 					uuidUtil.v4(),
 					NetworkVersion.new(
@@ -312,13 +418,7 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				)
 				SendPacket(connectPck)
 			"DataPackage":
-				var dataPackagePck = DataPackage.new()
-				dataPackagePck.from_dict(incPckData)
-				
-				var item_name_to_id = dataPackagePck.data["games"]["Buckshot Roulette"]["item_name_to_id"]
-				for item_name in item_name_to_id:
-					var item_id = item_name_to_id[item_name]
-					item_id_to_name[item_id] = item_name
+				handleDataPackage(incPckData)
 			"ConnectionRefused":
 				var connectionRefusedPck = ConnectionRefused.new()
 				connectionRefusedPck.from_dict(incPckData)
@@ -337,17 +437,20 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				connectedPck.from_dict(incPckData)
 				
 				checkedLocations = connectedPck.checked_locations.duplicate()
+				missingLocations = connectedPck.missing_locations.duplicate()
 				connectionState = ConnectionState.CONNECTED
 				
-				slot_num = connectedPck.slot
+				slot_num = int(connectedPck.slot)
 				
-				for i in range(L_OFST_SS, L_OFST_SS + 1000):
-					if float(i) not in checkedLocations:
-						shotsanityCount = i - L_OFST_SS
-						break
+				for slot in connectedPck.slot_info:
+					var info = connectedPck.slot_info[slot]
+					slot_info[int(slot)] = info
 				
-				donAccessReq = connectedPck.slot_data["double_or_nothing_requirements"]
-				CheckDONAccess()
+				for player in connectedPck.players:
+					var network_player = NetworkPlayer.new()
+					network_player.from_dict(player)
+					if network_player.team == connectedPck.team:
+						players[network_player.slot] = network_player.name
 				
 				DirAccess.copy_absolute(
 					"user://buckshotroulette_pills.shell",
@@ -355,15 +458,76 @@ func ParsePacket(packet: PackedByteArray) -> void:
 				)
 				DirAccess.remove_absolute("user://buckshotroulette_pills.shell")
 				
-				if connectedPck.slot_data["goal"] == 2:
-					goalAmt = 1000000
+				if hint_mode:
+					donAccessReq = 0
+					var locationScoutsPck = LocationScouts.new(missingLocations, 0)
+					SendPacket(locationScoutsPck)
 				else:
-					goalAmt = connectedPck.slot_data["custom_goal_amount"]
-				
-				var syncPck = Sync.new()
-				syncing = true
-				SendPacket(syncPck)
+					for i in range(L_OFST_SS, L_OFST_SS + 1000):
+						if float(i) not in checkedLocations:
+							shotsanityCount = i - L_OFST_SS
+							break
+					
+					donAccessReq = connectedPck.slot_data["double_or_nothing_requirements"]
+					CheckDONAccess()
+					
+					if connectedPck.slot_data["goal"] == 2:
+						goalAmt = 1000000
+					else:
+						goalAmt = connectedPck.slot_data["custom_goal_amount"]
+					
+					var syncPck = Sync.new()
+					syncing = true
+					SendPacket(syncPck)
+			"PrintJSON":
+				handleMessage(incPckData)
 
+
+func handleDataPackage(incPckData) -> void:
+	var dataPackagePck = DataPackage.new()
+	dataPackagePck.from_dict(incPckData)
+	
+	for game in dataPackagePck.data["games"]:
+		item_id_to_name[game] = {}
+		location_id_to_name[game] = {}
+		item_name_to_id[game] = {}
+		location_name_to_id[game] = {}
+		
+		var _item_name_to_id = dataPackagePck.data["games"][game]["item_name_to_id"]
+		for item_name in _item_name_to_id:
+			var item_id = _item_name_to_id[item_name]
+			item_id_to_name[game][item_id] = item_name
+			item_name_to_id[game][item_name.to_lower()] = item_id
+		
+		var _location_name_to_id = dataPackagePck.data["games"][game]["location_name_to_id"]
+		for location_name in _location_name_to_id:
+			var location_id = _location_name_to_id[location_name]
+			location_id_to_name[game][location_id] = location_name
+			location_name_to_id[game][location_name.to_lower()] = location_id
+
+
+func handleMessage(incPckData) -> void:
+	var printJSONPck = PrintJSON.new()
+	printJSONPck.from_dict(incPckData)
+	
+	var msg = ""
+	for msg_part in printJSONPck.data:
+		var test = JSONMessagePart.new()
+		test.from_dict(msg_part)
+		
+		match test.type:
+			"player_id":
+				test.text = players[int(test.text)]
+			"item_id":
+				var game = slot_info[test.player]["game"]
+				test.text = item_id_to_name[game][float(test.text)]
+			"location_id":
+				var game = slot_info[test.player]["game"]
+				test.text = location_id_to_name[game][float(test.text)]
+		
+		msg += test.text
+	msg += "\n"
+	send_chat.emit(msg)
 
 func setDeathLink(value: bool) -> void:
 	deathLink = value
@@ -373,15 +537,21 @@ func setDeathLink(value: bool) -> void:
 	
 	var tags
 	if value:
-		tags = ["NoText", "DeathLink"]
+		tags = ["DeathLink"]
 	else:
-		tags = ["NoText"]
+		tags = []
 	
 	var connectUpdatePck = ConnectUpdate.new(
 		0b111,
 		tags
 	)
 	SendPacket(connectUpdatePck)
+
+
+func setHintMode(value: bool) -> void:
+	if socket and socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
+		return
+	hint_mode = value
 
 
 func resetLifeBank() -> void:
