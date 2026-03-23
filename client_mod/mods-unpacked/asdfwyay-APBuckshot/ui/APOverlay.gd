@@ -209,7 +209,6 @@ func _on_receive_notification(msg):
 
 
 func _on_receive_chat(msg):
-	notification_player.play()
 	chat_log.append_text(msg)
 
 
