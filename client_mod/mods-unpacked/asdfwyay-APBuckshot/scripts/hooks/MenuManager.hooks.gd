@@ -69,7 +69,7 @@ func Intro(chain: ModLoaderHookChain):
 	var ap_version = Label.new()
 	
 	ap_version.name = "ap_version"
-	ap_version.text = "v0.2.0 (APBuckshot)"
+	ap_version.text = "v0.3.0 (APBuckshot)"
 	ap_version.position = Vector2(19, 500)
 	
 	var f = load("res://fonts/fake receipt.otf")
@@ -94,3 +94,5 @@ func Start(chain: ModLoaderHookChain):
 		ApClient.lifeBankCharges = ApClient.mechanicItems[ApClient.I_LIFE_BANK]
 	ApClient.isPlayerTurn = false
 	ApClient.streak = 0
+	ApClient.dealerTrapQueue = []
+	ApClient.CheckDONAccess()

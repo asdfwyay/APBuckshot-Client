@@ -27,9 +27,10 @@ func EndMainBatch(chain: ModLoaderHookChain):
 	else:
 		var locationOffset = 3*double_or_nothing_rounds_beat + playerData.currentBatchIndex
 		if locationOffset >= 0 and locationOffset <= 35:
-			ApClient.SendLocation(22 + 2*locationOffset)
-			ApClient.SendLocation(23 + 2*locationOffset)
+			ApClient.SendLocation(0x0200 + 1 + 2*locationOffset)
+			ApClient.SendLocation(0x0200 + 2 + 2*locationOffset)
 	
+	ApClient.poison = 0
 	chain.execute_next_async()
 
 
@@ -72,5 +73,23 @@ func SetupDeskUI(chain: ModLoaderHookChain):
 			mainNode.perm.SetIndicators(true)
 			mainNode.perm.SetInteractionPermissions(true)
 			mainNode.SetupDeskUI()
+	
+	var poisonDmg = floor(ApClient.poison / 100)
+	var f = float(ApClient.poison) / 100.0 - float(poisonDmg)
+	if randf() <= f:
+		poisonDmg += 1
+	
+	print("f: %f | Poison Dmg: %f" % [f, poisonDmg])
+	if not ApClient.isPlayerTurn and poisonDmg > 0:
+		var prevHealth = mainNode.health_player
+		mainNode.health_player -= poisonDmg
+		if mainNode.health_player < 1:
+			mainNode.health_player = 1
+		
+		if prevHealth - mainNode.health_player > 0:
+			mainNode.healthCounter.overriding_medicine = true
+			mainNode.healthCounter.overriding_medicine_adding = false
+			await mainNode.healthCounter.UpdateDisplayRoutineCigarette_Main(true, false)
+			mainNode.healthCounter.overriding_medicine = false
 	
 	ApClient.isPlayerTurn = true

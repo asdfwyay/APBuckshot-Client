@@ -72,6 +72,26 @@ func install_script_hook_files() -> void:
 		"res://scripts/DealerIntelligence.gd",
 		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/DealerIntelligence.hooks.gd"
 	)
+	ModLoaderMod.install_script_hooks(
+		"res://scripts/ItemInteraction.gd",
+		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/ItemInteraction.hooks.gd"
+	)
+	ModLoaderMod.install_script_hooks(
+		"res://scripts/InteractionManager.gd",
+		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/InteractionManager.hooks.gd"
+	)
+	ModLoaderMod.install_script_hooks(
+		"res://scripts/MedicineManager.gd",
+		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/MedicineManager.hooks.gd"
+	)
+	ModLoaderMod.install_script_hooks(
+		"res://scripts/BurnerPhone.gd",
+		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/BurnerPhone.hooks.gd"
+	)
+	ModLoaderMod.install_script_hooks(
+		"res://scripts/ShellExamine.gd",
+		"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/ShellExamine.hooks.gd"
+	)
 	#ModLoaderMod.install_script_hooks(
 	#	"res://multiplayer/scripts/MP_LobbyManager.gd",
 	#	"res://mods-unpacked/asdfwyay-APBuckshot/scripts/hooks/multiplayer/MP_LobbyManager.hooks.gd"

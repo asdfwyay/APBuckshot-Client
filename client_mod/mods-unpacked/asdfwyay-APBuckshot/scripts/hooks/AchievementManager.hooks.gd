@@ -8,38 +8,38 @@ func UnlockAchievement(chain: ModLoaderHookChain, apiname: String) -> void:
 	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 
 	match apiname:
-		"ach1":
-			ApClient.SendLocation(6)
-		"ach2":
-			ApClient.SendLocation(8)
-		"ach3":
-			ApClient.SendLocation(13)
-			ApClient.SendLocation(17)
-		"ach4":
-			ApClient.SendLocation(17)
-		"ach5":
-			ApClient.SendLocation(15)
-		"ach6":
-			ApClient.SendLocation(16)
-		"ach7":
-			ApClient.SendLocation(19)
-		"ach8":
-			ApClient.SendLocation(7)
-		"ach9":
-			ApClient.SendLocation(18)
-		"ach10":
-			ApClient.SendLocation(20)
-		"ach11":
-			ApClient.SendLocation(9)
-		"ach12":
-			ApClient.SendLocation(21)
-		"ach13":
-			ApClient.SendLocation(11)
-		"ach14":
-			ApClient.SendLocation(10)
-		"ach15":
-			ApClient.SendLocation(12)
-		"ach16":
-			ApClient.SendLocation(14)
+		"ach1": # 70K
+			ApClient.SendLocation(0x0100 + 1)
+		"ach2": # Bronze Gates
+			ApClient.SendLocation(0x0100 + 3)
+		"ach3": # Chasing Losses
+			ApClient.SendLocation(0x0100 + 8)
+			ApClient.SendLocation(0x0100 + 12)
+		"ach4": # Overdose
+			ApClient.SendLocation(0x0100 + 12)
+		"ach5": # Nope
+			ApClient.SendLocation(0x0100 + 10)
+		"ach6": # 140K
+			ApClient.SendLocation(0x0100 + 11)
+		"ach7": # 1000K
+			ApClient.SendLocation(0x0100 + 14)
+		"ach8": # Coin Flip
+			ApClient.SendLocation(0x0100 + 2)
+		"ach9": # Digita, Orava and Koni
+			ApClient.SendLocation(0x0100 + 13)
+		"ach10": # Know When To Quit
+			ApClient.SendLocation(0x0100 + 15)
+		"ach11": # Name Taken
+			ApClient.SendLocation(0x0100 + 4)
+		"ach12": # Full House
+			ApClient.SendLocation(0x0100 + 16)
+		"ach13": # Why?
+			ApClient.SendLocation(0x0100 + 6)
+		"ach14": # Soak It In
+			ApClient.SendLocation(0x0100 + 5)
+		"ach15": # Going Out With Style!
+			ApClient.SendLocation(0x0100 + 7)
+		"ach16": # High Rollers
+			ApClient.SendLocation(0x0100 + 9)
 	
 	chain.execute_next([apiname])

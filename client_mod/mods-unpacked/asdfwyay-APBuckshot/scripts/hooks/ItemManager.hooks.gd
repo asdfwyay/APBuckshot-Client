@@ -2,13 +2,11 @@ extends Node
 
 const APCLIENT_PATH = "/root/ModLoader/asdfwyay-APBuckshot/ApClient"
 
-var old_array_amounts = {}
-
-
 func GrabItem(chain: ModLoaderHookChain):
 	var mainNode := chain.reference_object as ItemManager
 	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 	var roundManager = mainNode.roundManager
+	var old_array_amounts = {}
 	
 	print("Starting GrabItem")
 	
@@ -40,7 +38,7 @@ func GrabItem(chain: ModLoaderHookChain):
 		mainNode.EndItemGrabbing()
 		return
 		
-	var num_rolls: int = ApClient.mechanicItems[11] + 1
+	var num_rolls: int = ApClient.mechanicItems[ApClient.I_OFST_MECH] + 1
 	var pull_item: int = 0
 	while (num_rolls > 0):
 		pull_item = randi_range(2,10 - zero_active_count)
@@ -60,13 +58,27 @@ func GrabItem(chain: ModLoaderHookChain):
 			old_array_amounts[id-2] = mainNode.amounts.array_amounts[id-2].amount_active
 			mainNode.amounts.array_amounts[id-2].amount_active = 0
 	
-	chain.execute_next_async()
+	if (mainNode.amounts.array_amounts[pull_item - 2].amount_active == 0):
+		mainNode.amounts.array_amounts[pull_item - 2].amount_active = 1
+	
+	await chain.execute_next_async()
 	
 	for id in old_array_amounts:
 		mainNode.amounts.array_amounts[id].amount_active = old_array_amounts[id]
-		
+	
 	print("Finishing GrabItem")
 
+
+func GrabItems_Enemy(chain: ModLoaderHookChain):
+	var mainNode := chain.reference_object as ItemManager
+	var roundManager = mainNode.roundManager
+	
+	print("Starting GrabItems_Enemy")
+	print(mainNode.numberOfItemsGrabbed_enemy)
+	print(roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab)
+	
+	chain.execute_next()
+	
 #func GrabItems_Enemy(chain: ModLoaderHookChain):
 #	var mainNode := chain.reference_object as ItemManager
 #	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")

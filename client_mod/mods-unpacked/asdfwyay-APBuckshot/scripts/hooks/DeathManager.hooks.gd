@@ -12,4 +12,7 @@ func MainDeathRoutine(chain: ModLoaderHookChain):
 	if ApClient.mechanicItems.has(ApClient.I_LIFE_BANK):
 		ApClient.lifeBankCharges = ApClient.mechanicItems[ApClient.I_LIFE_BANK]
 	ApClient.awaitingDeathLink = false
+	
 	ApClient.streak = 0
+	ApClient.poison = 0
+	ApClient.dealerTrapQueue = []
