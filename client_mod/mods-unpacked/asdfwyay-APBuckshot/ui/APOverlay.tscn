@@ -57,6 +57,7 @@ text = "AP Connected"
 vertical_alignment = 2
 
 [node name="Tracker" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
@@ -124,7 +125,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -156,7 +157,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot2/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -189,7 +190,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot3/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -221,7 +222,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot4/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -253,7 +254,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot5/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -285,7 +286,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot6/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -317,7 +318,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot7/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -349,7 +350,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot8/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -381,7 +382,7 @@ handle_input_locally = false
 size = Vector2i(140, 140)
 size_2d_override = Vector2i(512, 512)
 size_2d_override_stretch = true
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Tracker/TrackerContainer/GridContainer/ItemSlot9/ItemContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4, 0)
@@ -621,6 +622,261 @@ layout_mode = 2
 [node name="NotificationPlayer" type="AudioStreamPlayer" parent="Notifications"]
 stream = ExtResource("6_1prmu")
 
+[node name="ItemBuffCanvas" type="CanvasLayer" parent="."]
+layer = 4
+
+[node name="ItemBuffs" type="Control" parent="ItemBuffCanvas"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 1
+
+[node name="Beer" type="Control" parent="ItemBuffCanvas/ItemBuffs"]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BeerChoiceUI" type="MarginContainer" parent="ItemBuffCanvas/ItemBuffs/Beer"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 358
+theme_override_constants/margin_top = 230
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="query_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer"]
+custom_minimum_size = Vector2(245, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "Clear all Shells?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="YesButton" type="ColorRect" parent="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+color = Color(0, 0, 0, 0.498039)
+
+[node name="yes_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer/HBoxContainer/YesButton"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 41.0
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "YES"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NoButton" type="ColorRect" parent="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+color = Color(0, 0, 0, 0.498039)
+
+[node name="no_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer/HBoxContainer/NoButton"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 41.0
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "NO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MagnifyingGlass" type="Control" parent="ItemBuffCanvas/ItemBuffs"]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MGChoiceUI" type="MarginContainer" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 358
+theme_override_constants/margin_top = 230
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="query_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer"]
+custom_minimum_size = Vector2(245, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "Convert to..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="LiveButton" type="ColorRect" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+color = Color(0, 0, 0, 0.498039)
+
+[node name="live_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/LiveButton"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 41.0
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "LIVE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BlankButton" type="ColorRect" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+color = Color(0, 0, 0, 0.498039)
+
+[node name="blank_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/BlankButton"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 41.0
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "BLANK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NothingButton" type="ColorRect" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+color = Color(0, 0, 0, 0.498039)
+
+[node name="nothing_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/NothingButton"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 41.0
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "Don't"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BurnerPhone" type="Control" parent="ItemBuffCanvas/ItemBuffs"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PhoneChoiceUI" type="MarginContainer" parent="ItemBuffCanvas/ItemBuffs/BurnerPhone"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 358
+theme_override_constants/margin_top = 230
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ItemBuffCanvas/ItemBuffs/BurnerPhone/PhoneChoiceUI"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="query_label" type="Label" parent="ItemBuffCanvas/ItemBuffs/BurnerPhone/PhoneChoiceUI/VBoxContainer"]
+custom_minimum_size = Vector2(245, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "Choose a shell"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ItemBuffCanvas/ItemBuffs/BurnerPhone/PhoneChoiceUI/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="AdditionalInfo" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="AdditionalInfo"]
+layout_mode = 0
+offset_right = 140.0
+offset_bottom = 80.0
+mouse_filter = 2
+theme_override_constants/margin_left = 820
+theme_override_constants/margin_top = 460
+
+[node name="ColorRect" type="ColorRect" parent="AdditionalInfo/MarginContainer"]
+custom_minimum_size = Vector2(140, 80)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.196078)
+
+[node name="MarginContainer" type="MarginContainer" parent="AdditionalInfo/MarginContainer/ColorRect"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AdditionalInfo/MarginContainer/ColorRect/MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="HBoxContainerPoison" type="HBoxContainer" parent="AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="poison_label" type="Label" parent="AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerPoison"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "POISON:"
+vertical_alignment = 1
+
+[node name="poison_count" type="Label" parent="AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerPoison"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "0
+"
+vertical_alignment = 1
+
+[node name="HBoxContainerStreak" type="HBoxContainer" parent="AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="streak_label" type="Label" parent="AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerStreak"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "STREAK:"
+vertical_alignment = 1
+
+[node name="streak_count" type="Label" parent="AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerStreak"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "0
+"
+vertical_alignment = 1
+
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot3" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot4" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot5" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot6" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot7" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot8" method="update_bg_color"]
+[connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="update_bg_color"]
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="update_transparency"]
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="update_transparency"]
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot3" method="update_transparency"]
@@ -672,3 +928,8 @@ stream = ExtResource("6_1prmu")
 [connection signal="gui_input" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_gui_input"]
 [connection signal="mouse_entered" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_mouse_entered"]
 [connection signal="mouse_exited" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_mouse_exited"]
+[connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer/HBoxContainer/YesButton" to="." method="_on_beer_yes_gui_input"]
+[connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/Beer/BeerChoiceUI/VBoxContainer/HBoxContainer/NoButton" to="." method="_on_beer_no_gui_input"]
+[connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/LiveButton" to="." method="_on_mag_live_gui_input"]
+[connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/BlankButton" to="." method="_on_mag_blank_gui_input"]
+[connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/NothingButton" to="." method="_on_mag_nothing_gui_input"]

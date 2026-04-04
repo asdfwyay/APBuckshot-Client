@@ -52,3 +52,15 @@ func update_transparency(set_id, a):
 	for child in item_instance.get_children():
 		if child is MeshInstance3D:
 			child.transparency = a
+
+func update_bg_color(set_id: float, ch: String, val: float):
+	if float(id) != set_id:
+		return
+	
+	match ch:
+		"r":
+			self.color.r = val
+		"g":
+			self.color.g = val
+		"b":
+			self.color.b = val

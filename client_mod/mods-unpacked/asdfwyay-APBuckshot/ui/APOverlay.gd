@@ -1,6 +1,7 @@
 extends Node2D
 
 signal update_transparency(id: float, a: float)
+signal update_bg_color(id: float, ch: String, val: float)
 
 var ApClient
 var tracker_visible: bool = false
@@ -27,12 +28,22 @@ var current_msgs: Array = []
 @onready var charge_count_canvas: CanvasLayer = $LifeBankCanvas/LifeBank/LifeBankContainer/Icon/ChargeCountCanvas
 @onready var notification_player: AudioStreamPlayer = $Notifications/NotificationPlayer
 @onready var notification_container: VBoxContainer = $Notifications/NotificationMarginContainer/NotificationContainer
+@onready var item_buff_canvas: CanvasLayer = $ItemBuffCanvas
+@onready var beer_ui: Control = $ItemBuffCanvas/ItemBuffs/Beer
+@onready var mag_ui: Control = $ItemBuffCanvas/ItemBuffs/MagnifyingGlass
+@onready var phone_ui: Control = $ItemBuffCanvas/ItemBuffs/BurnerPhone
+@onready var phone_hbox: HBoxContainer = $ItemBuffCanvas/ItemBuffs/BurnerPhone/PhoneChoiceUI/VBoxContainer/HBoxContainer
+@onready var poison: Label = $AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerPoison/poison_count
+@onready var streak: Label = $AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerStreak/streak_count
 
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
 	print(ApClient)
 	ApClient.send_notification.connect(_on_receive_notification)
 	ApClient.send_chat.connect(_on_receive_chat)
+	ApClient.request_beer_choice.connect(_on_request_beer_choice)
+	ApClient.request_mag_choice.connect(_on_request_mag_choice)
+	ApClient.request_phone_choice.connect(_on_request_phone_choice)
 	
 	tracker.visible = false
 	tracker_label.visible = false
@@ -44,6 +55,11 @@ func _ready():
 	
 	life_bank_canvas.visible = true
 	charge_count_canvas.visible = true
+	item_buff_canvas.visible = false
+	
+	beer_ui.visible = false
+	mag_ui.visible = false
+	phone_ui.visible = false
 	
 	stolen_indicator.position = Vector2(80, 0)
 	
@@ -69,7 +85,8 @@ func _process(delta):
 	schrodinger_indicator.visible = ApClient.I_BULLET_TRAP in ApClient.trapQueue
 	deathlink_indicator.visible = ApClient.awaitingDeathLink
 	
-	
+	poison.text = ApClient.poison
+	streak.text = ApClient.streak
 	
 	match ApClient.connectionState:
 		ApClient.ConnectionState.DISCONNECTED:
@@ -104,6 +121,20 @@ func _input(event):
 				if (tracker_visible):
 					for id in ApClient.obtainedItems:
 						update_transparency.emit(id, 0)
+					
+					for id in range(ApClient.I_OFST_ITEM_BUFF, ApClient.I_OFST_ITEM_BUFF + 9):
+						var item_id = id - ApClient.I_OFST_ITEM_BUFF + 2
+						var g = 0.0
+						if ApClient.mechanicItems[id] > 0:
+							g = 0.125
+						update_bg_color.emit(item_id, "g", g)
+					for id in range(ApClient.I_OFST_ITEM_DEBUFF, ApClient.I_OFST_ITEM_DEBUFF + 9):
+						var item_id = id - ApClient.I_OFST_ITEM_DEBUFF + 2
+						var r = 0.0
+						if item_id in ApClient.included_item_debuffs and ApClient.mechanicItems[id] == 0:
+							r = 0.15
+						update_bg_color.emit(item_id, "r", r)
+					
 					if dialogue_ui:
 						disable_dialogue_ui(dialogue_ui)
 					prev_mouse_mode = Input.mouse_mode
@@ -120,7 +151,14 @@ func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
 		return
 	
 	item_name.text = name
-	
+	if ApClient.mechanicItems[id + ApClient.I_OFST_ITEM_BUFF - 2] > 0:
+		item_name.text += " ↑"
+	if (
+		id in ApClient.included_item_debuffs
+		and ApClient.mechanicItems[id + ApClient.I_OFST_ITEM_DEBUFF - 2] == 0
+	):
+		item_name.text += " ↓"
+		
 	if float(id) in ApClient.obtainedItems:
 		item_status.text = "FOUND"
 		item_status.set("theme_override_colors/font_color", Color8(0, 255, 0))
@@ -271,3 +309,84 @@ func _on_send_msg_pressed():
 	ApClient.SendPacket(chatPck)
 	
 	chat_input.text = ""
+
+
+func _on_request_beer_choice():
+	item_buff_canvas.visible = true
+	beer_ui.visible = true
+
+
+func _on_request_mag_choice():
+	item_buff_canvas.visible = true
+	mag_ui.visible = true
+
+
+func _on_beer_yes_gui_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			item_buff_canvas.visible = false
+			beer_ui.visible = false
+			ApClient.send_beer_choice.emit(true)
+
+
+func _on_beer_no_gui_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			item_buff_canvas.visible = false
+			beer_ui.visible = false
+			ApClient.send_beer_choice.emit(false)
+
+
+func _on_mag_live_gui_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			item_buff_canvas.visible = false
+			mag_ui.visible = false
+			ApClient.send_mag_choice.emit("live")
+
+
+func _on_mag_blank_gui_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			item_buff_canvas.visible = false
+			mag_ui.visible = false
+			ApClient.send_mag_choice.emit("blank")
+
+
+func _on_mag_nothing_gui_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			item_buff_canvas.visible = false
+			mag_ui.visible = false
+			ApClient.send_mag_choice.emit("none")
+
+
+func _on_request_phone_choice(num_shells: int):
+	var num_options = min(num_shells - 1, 6)
+	for i in range(num_options):
+		var bg: ColorRect = ColorRect.new()
+		bg.color = Color("#0000007f")
+		bg.custom_minimum_size = Vector2(30, 40)
+		bg.gui_input.connect(func(event): 
+			if event is InputEventMouseButton and event.pressed:
+				if event.button_index == MOUSE_BUTTON_LEFT:
+					item_buff_canvas.visible = false
+					phone_ui.visible = false
+					ApClient.send_phone_choice.emit(i + 2)
+					
+					for child in phone_hbox.get_children(true):
+						child.queue_free()
+		)
+		
+		var label: Label = Label.new()
+		label.text = str(i + 2)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.add_theme_font_override("font", load("res://fonts/fake receipt.otf"))
+		
+		bg.add_child(label)
+		phone_hbox.add_child(bg)
+	
+	if num_options > 0:
+		item_buff_canvas.visible = true
+		phone_ui.visible = true
