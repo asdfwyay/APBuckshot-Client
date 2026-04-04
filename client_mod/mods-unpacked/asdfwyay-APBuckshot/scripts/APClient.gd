@@ -4,6 +4,14 @@ signal send_notification(msg: String)
 signal send_error(msg: String)
 signal send_chat(msg: String)
 signal data_store_retrieved(data)
+signal location_info_retrieved(items_in_locations)
+
+signal request_mag_choice()
+signal send_mag_choice(choice: String)
+signal request_beer_choice()
+signal send_beer_choice(choice: bool)
+signal request_phone_choice(num_shells: int)
+signal send_phone_choice(num_shells: int)
 
 enum ConnectionState {
 	DISCONNECTED = 0,
@@ -42,22 +50,30 @@ const RoomInfo = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resour
 
 const uuidUtil = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/utils/uuid.gd")
 
-const I_OFST_MECH = 11
-const I_OFST_TRAP = 13
-const I_OFST_FILL = 15
-const I_ITEM_LUCK = 11
-const I_LIFE_BANK = 12
-const I_ITEM_TRAP = 13
-const I_BULLET_TRAP = 14
-const L_OFST_SS = 94
-const L_OFST_STS = 1094
-const L_CASH_OUT = 1103
-const WINNER_ITEM_ID = 26
+const I_OFST_MECH = 0x0100 + 1
+const I_OFST_TRAP = 0x0400 + 1
+const I_OFST_FILL = 0x0700 + 1
+
+const I_ITEM_LUCK = 0x0100 + 1
+const I_LIFE_BANK = 0x0100 + 2
+const I_OFST_ITEM_BUFF = 0x0100 + 3
+const I_OFST_ITEM_DEBUFF = 0x0100 + 12
+
+const I_ITEM_TRAP = 0x0400 + 1
+const I_BULLET_TRAP = 0x0400 + 2
+
+const N_MECH_ITEMS = 20
+
+const L_OFST_SS = 0x1000 + 1
+const L_OFST_STS = 0x2000 + 1
+const L_CASH_OUT = 0x2100 + 1
+const WINNER_ITEM_ID = 0x0F00 + 2
 
 var hint_mode: bool = false
 
 var shotsanityCount: int = 0
 var streak: int = 0
+var poison: int = 0
 var donAccessReq: int = 0
 var canAccessDON: bool = false
 var goalAmt: int = 0
@@ -79,6 +95,7 @@ var checkedLocations: Array = []
 var missingLocations: Array = []
 var obtainedItems: Array = []
 var trapQueue: Array = []
+var dealerTrapQueue: Array = []
 
 var lifeBankCharges: int = 0
 var isPlayerTurn: bool = false
@@ -114,8 +131,36 @@ var useful_locs: Array = []
 var filler_locs: Array = []
 var trap_locs: Array = []
 
+var item_buff_states: Dictionary = {
+	"handcuffs": false,
+}
+var included_item_debuffs: Array = []
+
+# TODO: Buffs
+# - Handsaw _ DONE
+# - Magnifying Glass _ DONE
+# - Beer _ DONE
+# - Cigarette Pack _ DONE
+# - Handcuffs _ DONE
+# - Expired Medicine _ DONE
+# - Burner Phone _ DONE
+# - Adrenaline _ DONE
+# - Inverter _ DONE
+
+# TODO: Debuffs
+# - Handsaw
+# - Magnifying Glass _ DONE
+# - Beer _ DONE
+# - Cigarette Pack _ DONE
+# - Handcuffs _ DONE
+# - Expired Medicine _ DONE
+# - Burner Phone _ DONE
+# - Adrenaline _ DONE
+# - Inverter _ DONE
+
 func _ready():
 	socket.set_inbound_buffer_size(50000000)
+	GlobalVariables.set_meta("burner_phone_choice", 0)
 	#socket.connect_to_url("wss://%s:%d" % [hostname, port])
 
 
@@ -212,6 +257,18 @@ func UpdateLocations() -> void:
 	CheckDONAccess()
 
 
+func ScoutLocations(locations: Array, create_as_hint: int = 0) -> Array: #NetworkItem
+	var locationScoutsPck = LocationScouts.new(locations, create_as_hint)
+	SendPacket(locationScoutsPck)
+	
+	var location_ids_in_packet = []
+	var items_in_locations
+	while not locations.all(func(x): return int(x) in location_ids_in_packet):
+		items_in_locations = await location_info_retrieved
+		for item in items_in_locations:
+			location_ids_in_packet.append(int(item.location))
+	return items_in_locations
+
 func SendLocation(id: float) -> void:
 	if hint_mode:
 		if id >= L_OFST_SS:
@@ -270,6 +327,18 @@ func SendLocation(id: float) -> void:
 	if !checkedLocations.has(id):
 		checkedLocations.append(id)
 		UpdateLocations()
+		
+		if !missingLocations.has(id):
+			return
+		
+		var items_in_locations = await ScoutLocations([id], 0)
+		if not items_in_locations.is_empty():
+			var network_item = items_in_locations[0]
+			var game = slot_info[int(network_item.player)]["game"]
+			var player_name = slot_info[int(network_item.player)]["name"]
+			var item_name = item_id_to_name[game][network_item.item]
+			
+			send_notification.emit("Sent %s to %s" % [item_name, player_name])
 	print(checkedLocations)
 
 
@@ -364,27 +433,22 @@ func ParsePacket(packet: PackedByteArray) -> void:
 			"Retrieved":
 				data_store_retrieved.emit(incPckData["keys"])
 			"LocationInfo":
-				prog_locs = []
-				useful_locs = []
-				filler_locs = []
-				trap_locs = []
-				
-				var items_in_locations = incPckData["locations"]
-				for item in items_in_locations:
-					match int(item["flags"]):
-						0b001:
-							prog_locs.append(int(item["location"]))
-						0b010:
-							useful_locs.append(int(item["location"]))
-						0b100:
-							trap_locs.append(int(item["location"]))
-						_:
-							filler_locs.append(int(item["location"]))
-				
-				prog_locs.shuffle()
-				useful_locs.shuffle()
-				filler_locs.shuffle()
-				trap_locs.shuffle()
+				location_info_retrieved.emit(incPckData["locations"])
+			"RoomUpdate":
+				if "checked_locations" in incPckData:
+					var updateCount = false
+					
+					for location in incPckData["checked_locations"]:
+						if not checkedLocations.has(location):
+							checkedLocations.append(location)
+						if location >= L_OFST_SS and location < L_OFST_SS + 1000:
+							updateCount = true
+					
+					if updateCount:
+						for i in range(L_OFST_SS, L_OFST_SS + 1000):
+							if float(i) not in checkedLocations:
+								shotsanityCount = i - L_OFST_SS
+								break
 	else:
 		match incPckData.cmd:
 			"RoomInfo":
@@ -475,6 +539,14 @@ func ParsePacket(packet: PackedByteArray) -> void:
 						goalAmt = 1000000
 					else:
 						goalAmt = connectedPck.slot_data["custom_goal_amount"]
+						
+					included_item_debuffs = connectedPck.slot_data["item_debuffs"]
+					
+					var i = 0
+					for debuff in included_item_debuffs:
+						included_item_debuffs[i] = int(item_name_to_id["Buckshot Roulette"][debuff.to_lower()])
+						i += 1
+					print(included_item_debuffs)
 					
 					var syncPck = Sync.new()
 					syncing = true
@@ -482,6 +554,30 @@ func ParsePacket(packet: PackedByteArray) -> void:
 			"PrintJSON":
 				handleMessage(incPckData)
 
+
+func connectedHintMode(missingLocations) -> void:
+	donAccessReq = 0
+	prog_locs = []
+	useful_locs = []
+	filler_locs = []
+	trap_locs = []
+	
+	var items_in_locations = await ScoutLocations(missingLocations, 0)
+	for item in items_in_locations:
+		match int(item["flags"]):
+			0b001:
+				prog_locs.append(int(item["location"]))
+			0b010:
+				useful_locs.append(int(item["location"]))
+			0b100:
+				trap_locs.append(int(item["location"]))
+			_:
+				filler_locs.append(int(item["location"]))
+	
+	prog_locs.shuffle()
+	useful_locs.shuffle()
+	filler_locs.shuffle()
+	trap_locs.shuffle()
 
 func handleDataPackage(incPckData) -> void:
 	var dataPackagePck = DataPackage.new()
@@ -555,7 +651,7 @@ func setHintMode(value: bool) -> void:
 
 
 func resetLifeBank() -> void:
-	for i in range(I_OFST_MECH, I_OFST_TRAP):
+	for i in range(I_OFST_MECH, I_OFST_MECH + N_MECH_ITEMS):
 		mechanicItems[i] = 0
 	lifeBankCharges = 0
 
