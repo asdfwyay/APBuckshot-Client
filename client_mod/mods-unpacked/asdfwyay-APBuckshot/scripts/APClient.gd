@@ -540,7 +540,13 @@ func ParsePacket(packet: PackedByteArray) -> void:
 					else:
 						goalAmt = connectedPck.slot_data["custom_goal_amount"]
 						
-					included_item_debuffs = connectedPck.slot_data["item_debuffs"]
+					if (
+						"included_custom_mechanics" in connectedPck.slot_data # 0.3.0 compatability
+						and "Item Debuffs" not in connectedPck.slot_data["included_custom_mechanics"]
+					):
+						included_item_debuffs = []
+					else:
+						included_item_debuffs = connectedPck.slot_data["item_debuffs"]
 					
 					var i = 0
 					for debuff in included_item_debuffs:
