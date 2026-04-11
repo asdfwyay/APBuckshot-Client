@@ -85,8 +85,8 @@ func _process(delta):
 	schrodinger_indicator.visible = ApClient.I_BULLET_TRAP in ApClient.trapQueue
 	deathlink_indicator.visible = ApClient.awaitingDeathLink
 	
-	poison.text = ApClient.poison
-	streak.text = ApClient.streak
+	poison.text = str(ApClient.poison)
+	streak.text = str(ApClient.streak)
 	
 	match ApClient.connectionState:
 		ApClient.ConnectionState.DISCONNECTED:
@@ -153,10 +153,7 @@ func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
 	item_name.text = name
 	if ApClient.mechanicItems[id + ApClient.I_OFST_ITEM_BUFF - 2] > 0:
 		item_name.text += " ↑"
-	if (
-		id in ApClient.included_item_debuffs
-		and ApClient.mechanicItems[id + ApClient.I_OFST_ITEM_DEBUFF - 2] == 0
-	):
+	if ApClient.checkItemDebuff(id):
 		item_name.text += " ↓"
 		
 	if float(id) in ApClient.obtainedItems:
@@ -247,6 +244,8 @@ func _on_receive_notification(msg):
 
 
 func _on_receive_chat(msg):
+	if chat_log.get_paragraph_count() >= 256:
+		chat_log.remove_paragraph(0)
 	chat_log.append_text(msg)
 
 
