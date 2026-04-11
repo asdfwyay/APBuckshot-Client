@@ -35,7 +35,7 @@ func EndMainBatch(chain: ModLoaderHookChain):
 				ApClient.SendLocation(5)
 	else:
 		var locationOffset = 3*double_or_nothing_rounds_beat + playerData.currentBatchIndex
-		if locationOffset >= 0 and locationOffset <= 35:
+		if locationOffset >= 0 and locationOffset <= 44:
 			ApClient.SendLocation(0x0200 + 1 + 2*locationOffset)
 			ApClient.SendLocation(0x0200 + 2 + 2*locationOffset)
 	
