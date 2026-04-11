@@ -46,34 +46,7 @@ func Shoot(chain: ModLoaderHookChain, who : String):
 	):
 		mainNode.roundManager.currentShotgunDamage = 3
 	
+	if mainNode.roundManager.barrelSawedOff:
+		ApClient.hasUsedHandsaw = true
+	
 	chain.execute_next_async([who])
-
-
-func MainSlowdownRoutine(chain: ModLoaderHookChain, whoCopy : String, fromDealer : bool):
-	var mainNode := chain.reference_object as ShotgunShooting
-	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
-	
-	chain.execute_next()
-	
-	if (!fromDealer):
-		var healthAfterShot = mainNode.roundManager.health_opponent - mainNode.roundManager.currentShotgunDamage		
-		if (
-			mainNode.roundManager.barrelSawedOff
-			and 2 in ApClient.included_item_debuffs
-			and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF] == 0
-			and healthAfterShot > 0
-			and mainNode.shellSpawner.sequenceArray[0] == "live"
-			and whoCopy == "dealer"
-			and randf() <= 1.0
-		):
-			mainNode.roundManager.waitingForHealthCheck2 = true
-			if (mainNode.shellSpawner.sequenceArray.size() == 1): 
-				mainNode.whatTheFuck = true
-			mainNode.roundManager.waitingForDealerReturn = true
-			mainNode.healthCounter.playerShotSelf = true
-			mainNode.playerDied = true
-			mainNode.roundManager.health_player -= 1
-			if (mainNode.roundManager.health_player < 0): mainNode.roundManager.health_player = 0
-			mainNode.playerCanGoAgain = false
-			mainNode.healthCounter.checkingPlayer = true
-			await(mainNode.death.Kill("player", false, true))
