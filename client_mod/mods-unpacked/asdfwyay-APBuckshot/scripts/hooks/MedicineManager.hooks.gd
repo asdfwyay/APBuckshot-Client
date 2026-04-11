@@ -11,9 +11,6 @@ func GetFlip(chain: ModLoaderHookChain):
 	if (value < comp):
 		return false
 	else:
-		if (
-			7 in ApClient.included_item_debuffs
-			and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF + 5] == 0
-		):
+		if ApClient.checkItemDebuff(7):
 			ApClient.poison += 20
 		return true

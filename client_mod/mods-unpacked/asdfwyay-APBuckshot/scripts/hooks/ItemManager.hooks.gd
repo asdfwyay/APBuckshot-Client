@@ -10,6 +10,8 @@ func GrabItem(chain: ModLoaderHookChain):
 	
 	print("Starting GrabItem")
 	
+	ApClient.isPlayerTurn = false
+	
 	if ApClient.hint_mode:
 		chain.execute_next_async()
 		return

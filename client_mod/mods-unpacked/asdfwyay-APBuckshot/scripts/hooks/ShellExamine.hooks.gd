@@ -8,9 +8,5 @@ func SetupShell(chain: ModLoaderHookChain):
 	
 	chain.execute_next()
 	
-	if (
-		3 in ApClient.included_item_debuffs
-		and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF + 1] == 0
-		and randf() <= 0.4
-	):
+	if ApClient.checkItemDebuff(3) and randf() <= 0.4:
 		mainNode.mesh.set_surface_override_material(1, mainNode.mat)

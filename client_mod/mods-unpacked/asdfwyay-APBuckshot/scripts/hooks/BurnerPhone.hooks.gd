@@ -22,11 +22,7 @@ func SendDialogue(chain: ModLoaderHookChain) -> void:
 		
 		if (
 			mainNode.sh.sequenceArray.size() <= 1
-			or (
-				8 in ApClient.included_item_debuffs
-				and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF + 6] == 0
-				and randf() <= 0.25
-			)
+			or (ApClient.checkItemDebuff(8) and randf() <= 0.25)
 		):
 			fulldia = tr("UNFORTUNATE")
 		else:
