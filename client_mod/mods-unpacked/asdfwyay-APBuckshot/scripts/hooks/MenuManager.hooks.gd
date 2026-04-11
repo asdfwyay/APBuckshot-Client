@@ -69,7 +69,7 @@ func Intro(chain: ModLoaderHookChain):
 	var ap_version = Label.new()
 	
 	ap_version.name = "ap_version"
-	ap_version.text = "v0.3.0 (APBuckshot)"
+	ap_version.text = "v0.3.1 (APBuckshot)"
 	ap_version.position = Vector2(19, 500)
 	
 	var f = load("res://fonts/fake receipt.otf")
