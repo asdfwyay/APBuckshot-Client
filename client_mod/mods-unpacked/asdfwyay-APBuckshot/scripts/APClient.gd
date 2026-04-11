@@ -99,6 +99,7 @@ var dealerTrapQueue: Array = []
 
 var lifeBankCharges: int = 0
 var isPlayerTurn: bool = false
+var hasUsedHandsaw: bool = false
 
 var socket = WebSocketPeer.new()
 var connectionState: ConnectionState = ConnectionState.DISCONNECTED
@@ -133,30 +134,9 @@ var trap_locs: Array = []
 
 var item_buff_states: Dictionary = {
 	"handcuffs": false,
+	"beer": true,
 }
 var included_item_debuffs: Array = []
-
-# TODO: Buffs
-# - Handsaw _ DONE
-# - Magnifying Glass _ DONE
-# - Beer _ DONE
-# - Cigarette Pack _ DONE
-# - Handcuffs _ DONE
-# - Expired Medicine _ DONE
-# - Burner Phone _ DONE
-# - Adrenaline _ DONE
-# - Inverter _ DONE
-
-# TODO: Debuffs
-# - Handsaw
-# - Magnifying Glass _ DONE
-# - Beer _ DONE
-# - Cigarette Pack _ DONE
-# - Handcuffs _ DONE
-# - Expired Medicine _ DONE
-# - Burner Phone _ DONE
-# - Adrenaline _ DONE
-# - Inverter _ DONE
 
 func _ready():
 	socket.set_inbound_buffer_size(50000000)
@@ -248,7 +228,10 @@ func _process(delta):
 
 
 func SendPacket(packet: APPacket) -> void:
-	socket.send_text(packet.serialize())
+	var out = packet.serialize()
+	if out.length() <= 32760:
+		print("Outgoing Packet: ", out)
+	socket.send_text(out)
 
 
 func UpdateLocations() -> void:
@@ -339,7 +322,7 @@ func SendLocation(id: float) -> void:
 			var item_name = item_id_to_name[game][network_item.item]
 			
 			send_notification.emit("Sent %s to %s" % [item_name, player_name])
-	print(checkedLocations)
+	print("Checked Location IDs: ", checkedLocations)
 
 
 func ReceiveItem(recItemsPck: ReceivedItems) -> void:
@@ -388,14 +371,14 @@ func CheckDONAccess() -> void:
 
 func ParsePacket(packet: PackedByteArray) -> void:
 	var incPckJSON = JSON.new()
-	var incPckData
-	
-	var err = incPckJSON.parse(packet.get_string_from_ascii())
+	var err = incPckJSON.parse(packet.get_string_from_utf8())
 	if err == OK:
-		incPckData = incPckJSON.data[0]
-		if str(incPckData).length() <= 32760:
-			print("Packet: ", incPckData)
-	
+		for cmd in incPckJSON.data:
+			#print("Incoming Command: %s, Bytes: %d" % [cmd.cmd, str(cmd).length()])
+			HandleCommand(cmd)
+
+
+func HandleCommand(incPckData) -> void:
 	if connectionState == ConnectionState.CONNECTED:
 		match incPckData.cmd:
 			"ReceivedItems":
@@ -539,7 +522,7 @@ func ParsePacket(packet: PackedByteArray) -> void:
 						goalAmt = 1000000
 					else:
 						goalAmt = connectedPck.slot_data["custom_goal_amount"]
-						
+					
 					if (
 						"included_custom_mechanics" in connectedPck.slot_data # 0.3.0 compatability
 						and "Item Debuffs" not in connectedPck.slot_data["included_custom_mechanics"]
@@ -552,7 +535,7 @@ func ParsePacket(packet: PackedByteArray) -> void:
 					for debuff in included_item_debuffs:
 						included_item_debuffs[i] = int(item_name_to_id["Buckshot Roulette"][debuff.to_lower()])
 						i += 1
-					print(included_item_debuffs)
+					print("Included Item Debuffs: ", included_item_debuffs)
 					
 					var syncPck = Sync.new()
 					syncing = true
@@ -674,3 +657,10 @@ func sendDeathLink() -> void:
 		},
 	)
 	SendPacket(deathLinkPacket)
+
+
+func checkItemDebuff(id: int) -> bool:
+	return (
+		id in included_item_debuffs
+		and mechanicItems[I_OFST_ITEM_DEBUFF + id - 2] == 0
+	)
