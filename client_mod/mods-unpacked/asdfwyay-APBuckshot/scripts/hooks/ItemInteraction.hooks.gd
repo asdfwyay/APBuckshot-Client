@@ -28,15 +28,18 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 					else:
 						ApClient.send_notification.emit("Conversion failed")
 		"beer":
-			if ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF + 2] > 0:
+			if (
+				ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF + 2] > 0
+				and ApClient.item_buff_states["beer"]
+			):
 				ApClient.request_beer_choice.emit()
 				var res = await ApClient.send_beer_choice
 				if res:
+					if ApClient.checkItemDebuff(4):
+						ApClient.poison += 10 * (mainNode.roundManager.shellSpawner.sequenceArray.size() - 1)
 					mainNode.roundManager.shellSpawner.sequenceArray.resize(1)
-			if (
-				4 in ApClient.included_item_debuffs
-				and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF + 2] == 0
-			):
+					ApClient.item_buff_states["beer"] = false
+			if ApClient.checkItemDebuff(4):
 				ApClient.poison += 15
 		"cigarettes":
 			if (
@@ -47,10 +50,7 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 				mainNode.roundManager.health_player += 1
 				if mainNode.roundManager.health_player > maxHealth - 1:
 					mainNode.roundManager.health_player = maxHealth - 1
-			if (
-				5 in ApClient.included_item_debuffs
-				and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF + 3] == 0
-			):
+			if ApClient.checkItemDebuff(5):
 				ApClient.poison += 30
 		"handcuffs":
 			if ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF + 4] > 0:
@@ -64,10 +64,7 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 				var res = await ApClient.send_phone_choice
 				GlobalVariables.set_meta("burner_phone_choice", res)
 		"adrenaline":
-			if (
-				9 in ApClient.included_item_debuffs
-				and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF + 7] == 0
-			):
+			if ApClient.checkItemDebuff(9):
 				ApClient.poison += 50
 		"inverter":
 			if ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF + 8] > 0:
@@ -77,11 +74,7 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 	
 	match (passedItemName):
 		"inverter":
-			if (
-				10 in ApClient.included_item_debuffs
-				and ApClient.mechanicItems[ApClient.I_OFST_ITEM_DEBUFF + 8] == 0
-				and randf() <= 0.25
-			):
+			if ApClient.checkItemDebuff(10) and randf() <= 0.25:
 				if (mainNode.roundManager.shellSpawner.sequenceArray[0] == "live"):
 					mainNode.roundManager.shellSpawner.sequenceArray[0] = "blank"
 				else:
