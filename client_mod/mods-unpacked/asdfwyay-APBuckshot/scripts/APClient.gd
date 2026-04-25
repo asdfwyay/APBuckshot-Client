@@ -144,7 +144,7 @@ func _ready():
 	#socket.connect_to_url("wss://%s:%d" % [hostname, port])
 
 
-func APConnect(_slot, _hostname, _port, _password) -> bool:
+func APConnect(_slot=slot, _hostname=hostname, _port=port, _password=password) -> bool:
 	slot = _slot
 	hostname = _hostname
 	port = _port

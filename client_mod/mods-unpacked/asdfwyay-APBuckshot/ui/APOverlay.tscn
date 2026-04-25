@@ -42,19 +42,45 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 color = Color(0, 0, 0, 0.196078)
 
-[node name="InnerContainer" type="MarginContainer" parent="OuterContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="OuterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="InnerContainer" type="MarginContainer" parent="OuterContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="connect_status" type="Label" parent="OuterContainer/InnerContainer"]
+[node name="connect_status" type="Label" parent="OuterContainer/HBoxContainer/InnerContainer"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("1_spycr")
 theme_override_font_sizes/font_size = 16
 text = "AP Connected"
 vertical_alignment = 2
+
+[node name="ReconnectCanvas" type="CanvasLayer" parent="OuterContainer/HBoxContainer"]
+layer = 4
+visible = false
+
+[node name="ReconnectButton" type="ColorRect" parent="OuterContainer/HBoxContainer/ReconnectCanvas"]
+custom_minimum_size = Vector2(120, 20)
+offset_left = 190.0
+offset_top = 490.0
+offset_right = 310.0
+offset_bottom = 524.0
+color = Color(0, 0, 0, 0.498039)
+
+[node name="reconnect" type="Label" parent="OuterContainer/HBoxContainer/ReconnectCanvas/ReconnectButton"]
+custom_minimum_size = Vector2(120, 20)
+layout_mode = 0
+offset_right = 120.0
+offset_bottom = 34.0
+theme_override_fonts/font = ExtResource("1_spycr")
+text = "Reconnect"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Tracker" type="Control" parent="."]
 visible = false
@@ -889,7 +915,8 @@ vertical_alignment = 1
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot7" method="update_transparency"]
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot8" method="update_transparency"]
 [connection signal="update_transparency" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="update_transparency"]
-[connection signal="resized" from="OuterContainer/InnerContainer/connect_status" to="." method="_on_connect_status_resized"]
+[connection signal="resized" from="OuterContainer/HBoxContainer/InnerContainer/connect_status" to="." method="_on_connect_status_resized"]
+[connection signal="gui_input" from="OuterContainer/HBoxContainer/ReconnectCanvas/ReconnectButton" to="." method="_on_reconnect_button_gui_input"]
 [connection signal="hide_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot" to="." method="_on_hide_tracker_info"]
 [connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot" to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot" to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="_on_mouse_exited"]

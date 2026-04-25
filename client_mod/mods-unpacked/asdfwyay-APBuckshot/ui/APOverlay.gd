@@ -9,7 +9,8 @@ var prev_mouse_mode
 var current_msgs: Array = []
 
 @onready var bg: ColorRect = $OuterContainer/Background
-@onready var connect_status: Label = $OuterContainer/InnerContainer/connect_status
+@onready var connect_status: Label = $OuterContainer/HBoxContainer/InnerContainer/connect_status
+@onready var reconnect_canvas: CanvasLayer = $OuterContainer/HBoxContainer/ReconnectCanvas
 @onready var tracker: Control = $Tracker
 @onready var tracker_label: MarginContainer = $Tracker/TrackerLabelContainer
 @onready var tracker_text_client: MarginContainer = $Tracker/ChatWindowContainer
@@ -61,6 +62,8 @@ func _ready():
 	mag_ui.visible = false
 	phone_ui.visible = false
 	
+	reconnect_canvas.visible = false
+	
 	stolen_indicator.position = Vector2(80, 0)
 	
 	var stolen_indicator_overlay = stolen_indicator.get_node("TextureOverlay")
@@ -92,12 +95,15 @@ func _process(delta):
 		ApClient.ConnectionState.DISCONNECTED:
 			connect_status.text = "AP DISCONNECTED"
 			connect_status.set("theme_override_colors/font_color", Color8(204, 51, 0))
+			reconnect_canvas.visible = true
 		ApClient.ConnectionState.CONNECTING:
 			connect_status.text = "ATTEMPTING TO RECONNECT TO AP..."
 			connect_status.set("theme_override_colors/font_color", Color8(255, 204, 0))
+			reconnect_canvas.visible = false
 		ApClient.ConnectionState.CONNECTED:
 			connect_status.text = "AP CONNECTED"
 			connect_status.set("theme_override_colors/font_color", Color8(255, 255, 255))
+			reconnect_canvas.visible = false
 
 
 func _on_connect_status_resized():
@@ -389,3 +395,7 @@ func _on_request_phone_choice(num_shells: int):
 	if num_options > 0:
 		item_buff_canvas.visible = true
 		phone_ui.visible = true
+
+
+func _on_reconnect_button_gui_input(event):
+	ApClient.APConnect()
