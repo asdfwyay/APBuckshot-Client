@@ -15,13 +15,19 @@ func Shoot(chain: ModLoaderHookChain, who : String):
 			mainNode.shellSpawner.sequenceArray[0] = "live"
 		ApClient.dealerTrapQueue.erase(ApClient.I_BULLET_TRAP)
 	
-	if ApClient.hasUsedHandsaw and who == "player":
+	if (
+		ApClient.checkItemDebuff(2)
+		and ApClient.hasUsedHandsaw
+		and who == "player"
+	):
 		mainNode.roundManager.currentShotgunDamage += 1
 	
 	var lastShell = mainNode.shellSpawner.sequenceArray[0]
 	await chain.execute_next_async([who])
 	if lastShell == "live" and who == "player":
 		ApClient.streak = 0
+	
+	mainNode.roundManager.currentShotgunDamage = 1
 
 
 func DealerCheckHandCuffs(chain: ModLoaderHookChain):
