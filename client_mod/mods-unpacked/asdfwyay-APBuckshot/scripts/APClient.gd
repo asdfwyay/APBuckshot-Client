@@ -36,6 +36,7 @@ const LocationChecks = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/
 const LocationScouts = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/LocationScouts.gd")
 const Say = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Say.gd")
 const Set = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Set.gd")
+const SetNotify = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/SetNotify.gd")
 const StatusUpdate = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/StatusUpdate.gd")
 const Sync = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/client/Sync.gd")
 
@@ -137,6 +138,9 @@ var item_buff_states: Dictionary = {
 	"beer": true,
 }
 var included_item_debuffs: Array = []
+
+var async_points: bool = false
+var async_point_total: int = 0
 
 func _ready():
 	socket.set_inbound_buffer_size(50000000)
@@ -415,6 +419,9 @@ func HandleCommand(incPckData) -> void:
 				handleMessage(incPckData)
 			"Retrieved":
 				data_store_retrieved.emit(incPckData["keys"])
+			"SetReply":
+				if incPckData["key"] == "BuckshotRoulettePoints_%d" % slot_num:
+					async_point_total = incPckData["value"]
 			"LocationInfo":
 				location_info_retrieved.emit(incPckData["locations"])
 			"RoomUpdate":
@@ -540,8 +547,27 @@ func HandleCommand(incPckData) -> void:
 					var syncPck = Sync.new()
 					syncing = true
 					SendPacket(syncPck)
+				
+				async_points = connectedPck.slot_data["asynchronous_points"]
+				if async_points:
+					connectedAsyncPoints()
 			"PrintJSON":
 				handleMessage(incPckData)
+
+
+func connectedAsyncPoints() -> void:
+	var setNotifyPck = SetNotify.new(["BuckshotRoulettePoints_%d" % slot_num])
+	SendPacket(setNotifyPck)
+	
+	var setPck = ApClient.Set.new(
+		"BuckshotRoulettePoints_%d" % ApClient.slot_num,
+		0,
+		true,
+		[
+			{"operation": "default", "value": 0},
+		]
+	)
+	SendPacket(setPck)
 
 
 func connectedHintMode(missingLocations) -> void:
