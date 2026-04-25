@@ -28,10 +28,14 @@ func Shoot(chain: ModLoaderHookChain, who : String):
 			ApClient.SendLocation(
 				ApClient.L_OFST_SS + ApClient.shotsanityCount - 1
 			)
+		if ApClient.shotsanityCount >= ApClient.shotsanity_goal_count:
+			ApClient.goal_requirements_met = ApClient.goal_requirements_met | 0b010
 		
 		if who == "dealer":
 			ApClient.streak += 1
-			print(ApClient.streak)
+			if ApClient.streak >= ApClient.streaksanity_count:
+				ApClient.goal_requirements_met = ApClient.goal_requirements_met | 0b001
+			print("Current Streak: %d" % ApClient.streak)
 			if ApClient.streak >= 2 and ApClient.streak <= 10:
 				ApClient.SendLocation(
 					ApClient.L_OFST_STS + ApClient.streak - 2
