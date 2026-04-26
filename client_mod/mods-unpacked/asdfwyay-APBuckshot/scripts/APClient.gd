@@ -142,10 +142,14 @@ var included_item_debuffs: Array = []
 var async_points: bool = false
 var async_point_total: int = 0
 
+var goal_requirements: int = 0b100
 var goal_requirements_met: int = 0b000:
 	set(value):
 		goal_requirements_met = value
-		if goal_requirements_met & 0b111 == 0b111:
+		if (
+			goal_requirements_met & goal_requirements == goal_requirements
+			and connectionState == ConnectionState.CONNECTED
+		):
 			var statusUpdatePck = StatusUpdate.new(StatusUpdate.ClientStatus.CLIENT_GOAL)
 			SendPacket(statusUpdatePck)
 	get:
@@ -569,6 +573,15 @@ func HandleCommand(incPckData) -> void:
 				if async_points:
 					connectedAsyncPoints()
 				
+				goal_requirements = 0b100
+				match (connectedPck.slot_data["additional_goal_requirements"]):
+					"shots":
+						goal_requirements |= 0b010
+					"streak":
+						goal_requirements |= 0b001
+					"sanities":
+						goal_requirements |= 0b011
+				
 				shotsanity_goal_count = int(connectedPck.slot_data["shotsanity_goal_percentage"])
 				if shotsanity_goal_count == 0:
 					goal_requirements_met = goal_requirements_met | 0b010
@@ -580,7 +593,7 @@ func HandleCommand(incPckData) -> void:
 				streaksanity_count = int(connectedPck.slot_data["streaksanity_count"])
 				if (
 					streaksanity_count == 0
-					or L_OFST_STS + streaksanity_count - 2  in checkedLocations
+					or L_OFST_STS + streaksanity_count - 2 in checkedLocations
 				):
 					goal_requirements_met = goal_requirements_met | 0b001
 			"PrintJSON":
