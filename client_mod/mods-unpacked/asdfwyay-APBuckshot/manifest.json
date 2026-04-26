@@ -11,7 +11,7 @@
 			"tags": ["Randomizer"],
 			"description_rich": "",
 			"optional_dependencies": [],
-			"load_before": [],
+			"load_before": ["ITR-ShellDisplay"],
 			"incompatibilities": [],
 			"compatible_mod_loader_version": ["7.0.1"],
 			"compatible_game_version": ["2.2.0"],
