@@ -4,7 +4,7 @@ extends "res://mods-unpacked/asdfwyay-APBuckshot/scripts/resources/common/APPack
 var key: String
 var default: Variant
 var want_reply: bool
-var operations: Dictionary
+var operations: Array #Dictionary
 
 
 func _init(_key, _default, _want_reply, _operations) -> void:
