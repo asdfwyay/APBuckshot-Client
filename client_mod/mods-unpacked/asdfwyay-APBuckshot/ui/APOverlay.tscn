@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cq8t8k11xqb0q"]
+[gd_scene load_steps=12 format=3 uid="uid://cq8t8k11xqb0q"]
 
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/APOverlay.gd" id="1_oogvm"]
 [ext_resource type="FontFile" uid="uid://vhj3kkn6yn8o" path="res://fonts/fake receipt.otf" id="1_spycr"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/LifeBank.gd" id="4_pw3aj"]
 [ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/SchrodingerIndicator.gd" id="5_rrwm1"]
 [ext_resource type="AudioStream" uid="uid://cec8m6gf7xsuc" path="res://audio/health counter reduce health.ogg" id="6_1prmu"]
+[ext_resource type="Script" path="res://mods-unpacked/asdfwyay-APBuckshot/ui/PlayerStatTree.gd" id="7_ghbfk"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_cjncx"]
 viewport_path = NodePath("Tracker/TrackerContainer/GridContainer/ItemSlot/ItemContainer/SubViewport")
@@ -452,45 +453,6 @@ offset_right = 312.0
 offset_bottom = 312.0
 texture = SubResource("ViewportTexture_cjncx")
 
-[node name="ChatWindowContainer" type="MarginContainer" parent="Tracker"]
-layout_mode = 0
-offset_left = 1.0
-offset_right = 415.0
-offset_bottom = 386.0
-theme_override_constants/margin_left = 50
-theme_override_constants/margin_top = 46
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Tracker/ChatWindowContainer"]
-layout_mode = 2
-
-[node name="PanelContainer" type="PanelContainer" parent="Tracker/ChatWindowContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="chat_log" type="RichTextLabel" parent="Tracker/ChatWindowContainer/VBoxContainer/PanelContainer"]
-custom_minimum_size = Vector2(0, 386)
-layout_mode = 2
-theme_override_fonts/normal_font = ExtResource("1_spycr")
-theme_override_font_sizes/normal_font_size = 12
-scroll_following = true
-threaded = true
-progress_bar_delay = -1
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Tracker/ChatWindowContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="text_client_input" type="LineEdit" parent="Tracker/ChatWindowContainer/VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(296, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_spycr")
-theme_override_font_sizes/font_size = 12
-
-[node name="send_msg" type="Button" parent="Tracker/ChatWindowContainer/VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("1_spycr")
-theme_override_font_sizes/font_size = 12
-text = "SEND"
-
 [node name="LifeBankCanvas" type="CanvasLayer" parent="."]
 layer = 4
 
@@ -897,6 +859,74 @@ text = "0
 "
 vertical_alignment = 1
 
+[node name="ChatWindow" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ChatWindowContainer" type="MarginContainer" parent="ChatWindow"]
+layout_mode = 0
+offset_left = 1.0
+offset_right = 415.0
+offset_bottom = 462.0
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 46
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ChatWindow/ChatWindowContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="ChatWindow/ChatWindowContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="chat_log" type="RichTextLabel" parent="ChatWindow/ChatWindowContainer/VBoxContainer/PanelContainer"]
+custom_minimum_size = Vector2(0, 386)
+layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("1_spycr")
+theme_override_font_sizes/normal_font_size = 12
+scroll_following = true
+threaded = true
+progress_bar_delay = -1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ChatWindow/ChatWindowContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="text_client_input" type="LineEdit" parent="ChatWindow/ChatWindowContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(296, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+theme_override_font_sizes/font_size = 12
+
+[node name="send_msg" type="Button" parent="ChatWindow/ChatWindowContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_spycr")
+theme_override_font_sizes/font_size = 12
+text = "SEND"
+
+[node name="Stats" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Stats"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 450
+theme_override_constants/margin_top = 46
+
+[node name="PlayerStatTree" type="Tree" parent="Stats/MarginContainer"]
+custom_minimum_size = Vector2(475, 382)
+layout_mode = 2
+mouse_filter = 1
+theme_override_fonts/font = ExtResource("1_spycr")
+columns = 2
+hide_root = true
+scroll_horizontal_enabled = false
+script = ExtResource("7_ghbfk")
+
 [connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot" method="update_bg_color"]
 [connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot2" method="update_bg_color"]
 [connection signal="update_bg_color" from="." to="Tracker/TrackerContainer/GridContainer/ItemSlot3" method="update_bg_color"]
@@ -953,8 +983,6 @@ vertical_alignment = 1
 [connection signal="mouse_entered" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="Tracker/TrackerContainer/GridContainer/ItemSlot9" method="_on_mouse_exited"]
 [connection signal="show_tracker_info" from="Tracker/TrackerContainer/GridContainer/ItemSlot9" to="." method="_on_show_tracker_info"]
-[connection signal="gui_input" from="Tracker/ChatWindowContainer/VBoxContainer/HBoxContainer/text_client_input" to="." method="_on_text_client_input_gui_input"]
-[connection signal="pressed" from="Tracker/ChatWindowContainer/VBoxContainer/HBoxContainer/send_msg" to="." method="_on_send_msg_pressed"]
 [connection signal="gui_input" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_gui_input"]
 [connection signal="mouse_entered" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_mouse_entered"]
 [connection signal="mouse_exited" from="LifeBankCanvas/LifeBank/LifeBankContainer/Icon" to="LifeBankCanvas/LifeBank" method="_on_icon_mouse_exited"]
@@ -963,3 +991,5 @@ vertical_alignment = 1
 [connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/LiveButton" to="." method="_on_mag_live_gui_input"]
 [connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/BlankButton" to="." method="_on_mag_blank_gui_input"]
 [connection signal="gui_input" from="ItemBuffCanvas/ItemBuffs/MagnifyingGlass/MGChoiceUI/VBoxContainer/HBoxContainer/NothingButton" to="." method="_on_mag_nothing_gui_input"]
+[connection signal="gui_input" from="ChatWindow/ChatWindowContainer/VBoxContainer/HBoxContainer/text_client_input" to="." method="_on_text_client_input_gui_input"]
+[connection signal="pressed" from="ChatWindow/ChatWindowContainer/VBoxContainer/HBoxContainer/send_msg" to="." method="_on_send_msg_pressed"]

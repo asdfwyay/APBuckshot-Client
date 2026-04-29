@@ -3,8 +3,14 @@ extends Node2D
 signal update_transparency(id: float, a: float)
 signal update_bg_color(id: float, ch: String, val: float)
 
+enum Overlay {
+	DEFAULT = 0,
+	TRACKER = 1,
+	STATS = 2,
+}
+
 var ApClient
-var tracker_visible: bool = false
+var active_overlay: Overlay = Overlay.DEFAULT
 var prev_mouse_mode
 var current_msgs: Array = []
 
@@ -13,11 +19,11 @@ var current_msgs: Array = []
 @onready var reconnect_canvas: CanvasLayer = $OuterContainer/HBoxContainer/ReconnectCanvas
 @onready var tracker: Control = $Tracker
 @onready var tracker_label: MarginContainer = $Tracker/TrackerLabelContainer
-@onready var tracker_text_client: MarginContainer = $Tracker/ChatWindowContainer
+@onready var text_client: MarginContainer = $ChatWindow/ChatWindowContainer
 @onready var luck_level: Label = $Tracker/LuckContainer/luck_level
-@onready var chat_log: RichTextLabel = $Tracker/ChatWindowContainer/VBoxContainer/PanelContainer/chat_log
-@onready var chat_input: LineEdit = $Tracker/ChatWindowContainer/VBoxContainer/HBoxContainer/text_client_input
-@onready var chat_send: Button = $Tracker/ChatWindowContainer/VBoxContainer/HBoxContainer/send_msg
+@onready var chat_log: RichTextLabel = $ChatWindow/ChatWindowContainer/VBoxContainer/PanelContainer/chat_log
+@onready var chat_input: LineEdit = $ChatWindow/ChatWindowContainer/VBoxContainer/HBoxContainer/text_client_input
+@onready var chat_send: Button = $ChatWindow/ChatWindowContainer/VBoxContainer/HBoxContainer/send_msg
 @onready var life_bank: Control = $LifeBankCanvas/LifeBank
 @onready var item_name: Label = $Tracker/TrackerLabelContainer/VBoxContainer/item_name
 @onready var item_status: Label = $Tracker/TrackerLabelContainer/VBoxContainer/item_status
@@ -34,12 +40,14 @@ var current_msgs: Array = []
 @onready var mag_ui: Control = $ItemBuffCanvas/ItemBuffs/MagnifyingGlass
 @onready var phone_ui: Control = $ItemBuffCanvas/ItemBuffs/BurnerPhone
 @onready var phone_hbox: HBoxContainer = $ItemBuffCanvas/ItemBuffs/BurnerPhone/PhoneChoiceUI/VBoxContainer/HBoxContainer
+@onready var additional_info: VBoxContainer = $AdditionalInfo
 @onready var poison: Label = $AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerPoison/poison_count
 @onready var streak: Label = $AdditionalInfo/MarginContainer/ColorRect/MarginContainer/VBoxContainer/HBoxContainerStreak/streak_count
+@onready var stats: Control = $Stats
+@onready var stat_tree = $Stats/MarginContainer/PlayerStatTree
 
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
-	print(ApClient)
 	ApClient.send_notification.connect(_on_receive_notification)
 	ApClient.send_chat.connect(_on_receive_chat)
 	ApClient.request_beer_choice.connect(_on_request_beer_choice)
@@ -48,7 +56,7 @@ func _ready():
 	
 	tracker.visible = false
 	tracker_label.visible = false
-	tracker_text_client.visible = true
+	text_client.visible = false
 	
 	stolen_indicator.visible = false
 	schrodinger_indicator.visible = false
@@ -63,6 +71,7 @@ func _ready():
 	phone_ui.visible = false
 	
 	reconnect_canvas.visible = false
+	stats.visible = false
 	
 	stolen_indicator.position = Vector2(80, 0)
 	
@@ -78,9 +87,6 @@ func _ready():
 
 
 func _process(delta):
-	tracker.visible = tracker_visible
-	life_bank.visible = !tracker.visible
-	
 	if ApClient.mechanicItems.has(ApClient.I_LIFE_BANK):
 		life_bank.visible = life_bank.visible and ApClient.mechanicItems[ApClient.I_LIFE_BANK] > 0
 	
@@ -106,6 +112,29 @@ func _process(delta):
 			reconnect_canvas.visible = false
 
 
+func cycle_overlay():
+	active_overlay = (active_overlay + 1) % 3
+	match active_overlay:
+		Overlay.DEFAULT:
+			life_bank.visible = true
+			tracker.visible = false
+			additional_info.visible = true
+			text_client.visible = false
+			stats.visible = false
+		Overlay.TRACKER:
+			life_bank.visible = false
+			tracker.visible = true
+			additional_info.visible = false
+			text_client.visible = true
+			stats.visible = false
+		Overlay.STATS:
+			life_bank.visible = false
+			tracker.visible = false
+			additional_info.visible = false
+			text_client.visible = true
+			stats.visible = true
+			stat_tree.update_all()
+
 func _on_connect_status_resized():
 	if (connect_status and bg):
 		var bg_size = connect_status.get_rect().size
@@ -120,11 +149,11 @@ func _input(event):
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
 			if event.keycode == KEY_TAB:
-				tracker_visible = !tracker_visible
+				cycle_overlay()
 				
 				var dialogue_ui = get_tree().root.get_node("main/Camera/dialogue UI")
-
-				if (tracker_visible):
+				
+				if active_overlay == Overlay.TRACKER:
 					for id in ApClient.obtainedItems:
 						update_transparency.emit(id, 0)
 					
@@ -140,7 +169,8 @@ func _input(event):
 						if item_id in ApClient.included_item_debuffs and ApClient.mechanicItems[id] == 0:
 							r = 0.15
 						update_bg_color.emit(item_id, "r", r)
-					
+				
+				if active_overlay in [Overlay.TRACKER, Overlay.STATS]:
 					if dialogue_ui:
 						disable_dialogue_ui(dialogue_ui)
 					prev_mouse_mode = Input.mouse_mode
@@ -153,7 +183,7 @@ func _input(event):
 
 
 func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
-	if not tracker_visible:
+	if active_overlay != Overlay.TRACKER:
 		return
 	
 	item_name.text = name
@@ -172,7 +202,7 @@ func _on_show_tracker_info(id: int, name: String, vp: SubViewport):
 	if item_model.texture is ViewportTexture:
 		item_model.texture.set_viewport_path_in_scene(vp.get_path())
 		
-	tracker_text_client.visible = false
+	text_client.visible = false
 	tracker_label.visible = true
 
 
@@ -180,7 +210,7 @@ func _on_hide_tracker_info():
 	update_luck_level()
 	
 	tracker_label.visible = false
-	tracker_text_client.visible = true
+	text_client.visible = true
 
 
 func update_luck_level():
