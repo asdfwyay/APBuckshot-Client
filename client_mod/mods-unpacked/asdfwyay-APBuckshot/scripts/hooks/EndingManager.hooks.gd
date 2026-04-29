@@ -13,18 +13,18 @@ func BeginEnding(chain: ModLoaderHookChain):
 		if ApClient.async_points:
 			if ApClient.async_point_total + mainNode.roundManager.endscore >= ApClient.goalAmt:
 				ApClient.SendLocation(ApClient.L_CASH_OUT)
-			
-			var setPck = ApClient.Set.new(
-				"BuckshotRoulettePoints_%d" % ApClient.slot_num,
-				0,
-				true,
-				[
-					{"operation": "default", "value": 0},
-					{"operation": "add", "value": mainNode.roundManager.endscore},
-				]
-			)
-			ApClient.SendPacket(setPck)
 		elif mainNode.roundManager.endscore >= ApClient.goalAmt:
 			ApClient.SendLocation(ApClient.L_CASH_OUT)
+		
+		var setPck = ApClient.Set.new(
+			"BuckshotRoulettePoints_%d" % ApClient.slot_num,
+			0,
+			true,
+			[
+				{"operation": "default", "value": 0},
+				{"operation": "add", "value": mainNode.roundManager.endscore},
+			]
+		)
+		ApClient.SendPacket(setPck)
 	
 	await chain.execute_next_async()
