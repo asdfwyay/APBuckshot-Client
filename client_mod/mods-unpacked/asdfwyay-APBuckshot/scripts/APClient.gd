@@ -54,6 +54,8 @@ const uuidUtil = preload("res://mods-unpacked/asdfwyay-APBuckshot/scripts/utils/
 const I_OFST_MECH = 0x0100 + 1
 const I_OFST_TRAP = 0x0400 + 1
 const I_OFST_FILL = 0x0700 + 1
+const I_OFST_FILL_PTS = 0x0800 + 1
+const I_OFST_GOAL = 0x0F00 + 1
 
 const I_ITEM_LUCK = 0x0100 + 1
 const I_LIFE_BANK = 0x0100 + 2
@@ -74,6 +76,7 @@ var hint_mode: bool = false
 
 var shotsanityCount: int = 0
 var streak: int = 0
+var max_streak: int = 0
 var poison: int = 0
 var donAccessReq: int = 0
 var canAccessDON: bool = false
@@ -136,6 +139,8 @@ var trap_locs: Array = []
 var item_buff_states: Dictionary = {
 	"handcuffs": false,
 	"beer": true,
+	"magnifying glass": true,
+	"handsaw": true,
 }
 var included_item_debuffs: Array = []
 
@@ -155,6 +160,7 @@ var goal_requirements_met: int = 0b000:
 	get:
 		return goal_requirements_met
 
+var total_shotsanity_count: int = 0
 var shotsanity_goal_count: int = 0
 var streaksanity_count: int = 0
 
@@ -192,11 +198,17 @@ func APConnect(_slot=slot, _hostname=hostname, _port=port, _password=password) -
 	
 	await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 	if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
-		print("Failed wss. Attempting ws.")
+		ModLoaderLog.warning(
+			"Failed wss. Attempting ws...",
+			"asdfwyay-APBuckshot"
+		)
 		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
 		await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 		if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
-			print("Failed ws.")
+			ModLoaderLog.error(
+				"Failed ws. Could not connect to AP.",
+				"asdfwyay-APBuckshot"
+			)
 			connectionState = ConnectionState.DISCONNECTED
 			return false
 	return true
@@ -204,7 +216,10 @@ func APConnect(_slot=slot, _hostname=hostname, _port=port, _password=password) -
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		print("Closing socket")
+		ModLoaderLog.info(
+			"Closing Socket",
+			"asdfwyay-APBuckshot"
+		)
 		if socket and socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
 			attemptReconnection = false
 			socket.close()
@@ -235,9 +250,15 @@ func _process(delta):
 	elif state == WebSocketPeer.STATE_CLOSED:
 		var code = socket.get_close_code()
 		var reason = socket.get_close_reason()
-		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
+		ModLoaderLog.info(
+			"WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1],
+			"asdfwyay-APBuckshot"
+		)
 		if (attemptReconnection):
-			print("Attempt: %d" % [failedAttempts + 1])
+			ModLoaderLog.info(
+				"Attempt %d to Reconnect" % [failedAttempts + 1],
+				"asdfwyay-APBuckshot"
+			)
 			set_process(false)
 			var result = await APConnect(slot, hostname, port, password)
 			if not result:
@@ -252,7 +273,10 @@ func _process(delta):
 func SendPacket(packet: APPacket) -> void:
 	var out = packet.serialize()
 	if out.length() <= 32760:
-		print("Outgoing Packet: ", out)
+		ModLoaderLog.debug(
+			"Outgoing Packet: %s" % [out],
+			"asdfwyay-APBuckshot"
+		)
 	socket.send_text(out)
 
 
@@ -287,7 +311,7 @@ func SendLocation(id: float) -> void:
 		SendPacket(getPck)
 		
 		var retrieved_data = await data_store_retrieved
-		print(retrieved_data)
+		#print(retrieved_data)
 		if (
 			retrieved_data
 			and retrieved_data.has("BuckshotRouletteHint_%d" % slot_num)
@@ -344,7 +368,11 @@ func SendLocation(id: float) -> void:
 			var item_name = item_id_to_name[game][network_item.item]
 			
 			send_notification.emit("Sent %s to %s" % [item_name, player_name])
-	print("Checked Location IDs: ", checkedLocations)
+	
+	ModLoaderLog.info(
+		"Checked Location IDs: %s" % [str(checkedLocations)],
+		"asdfwyay-APBuckshot"
+	)
 
 
 func ReceiveItem(recItemsPck: ReceivedItems) -> void:
@@ -364,6 +392,18 @@ func ReceiveItem(recItemsPck: ReceivedItems) -> void:
 		elif item.item >= I_OFST_TRAP and item.item < I_OFST_FILL:
 			if (!syncing):
 				trapQueue.append(int(item.item))
+		elif item.item >= I_OFST_FILL_PTS and item.item < I_OFST_GOAL:
+			match (int(item.item) - I_OFST_FILL_PTS):
+				0:
+					async_point_total += int(0.0025 * float(goalAmt))
+				1:
+					async_point_total += int(0.005 * float(goalAmt))
+				2:
+					async_point_total += int(0.01 * float(goalAmt))
+				3:
+					async_point_total += int(0.02 * float(goalAmt))
+				4:
+					async_point_total += int(0.05 * float(goalAmt))
 		else:
 			shouldBroadcast = false
 		
@@ -443,21 +483,21 @@ func HandleCommand(incPckData) -> void:
 				location_info_retrieved.emit(incPckData["locations"])
 			"RoomUpdate":
 				if "checked_locations" in incPckData:
-					var updateCount = false
+					var updateShotCount = false
+					var updateStreakCount = false
 					
 					for location in incPckData["checked_locations"]:
 						if not checkedLocations.has(location):
 							checkedLocations.append(location)
 						if location >= L_OFST_SS and location < L_OFST_SS + 1000:
-							updateCount = true
+							updateShotCount = true
+						if location >= L_OFST_STS and location < L_OFST_STS + 9:
+							updateStreakCount = true
 					
-					if updateCount:
-						for i in range(L_OFST_SS, L_OFST_SS + 1000):
-							if float(i) not in checkedLocations:
-								shotsanityCount = i - L_OFST_SS
-								break
-						if shotsanityCount >= shotsanity_goal_count:
-							goal_requirements_met = goal_requirements_met | 0b010
+					if updateShotCount:
+						setShotsanityCount()
+					if updateStreakCount:
+						setMaxStreak()
 	else:
 		match incPckData.cmd:
 			"RoomInfo":
@@ -536,20 +576,15 @@ func HandleCommand(incPckData) -> void:
 					var locationScoutsPck = LocationScouts.new(missingLocations, 0)
 					SendPacket(locationScoutsPck)
 				else:
-					for i in range(L_OFST_SS, L_OFST_SS + 1000):
-						if float(i) not in checkedLocations:
-							shotsanityCount = i - L_OFST_SS
-							break
-					if shotsanityCount >= shotsanity_goal_count:
-						goal_requirements_met = goal_requirements_met | 0b010
-					
 					donAccessReq = connectedPck.slot_data["double_or_nothing_requirements"]
 					CheckDONAccess()
 					
 					if connectedPck.slot_data["goal"] == 2:
 						goalAmt = 1000000
-					else:
+					elif connectedPck.slot_data["goal"] == 3:
 						goalAmt = connectedPck.slot_data["custom_goal_amount"]
+					else:
+						goalAmt = 0
 					
 					if (
 						"included_custom_mechanics" in connectedPck.slot_data # 0.3.0 compatability
@@ -563,7 +598,11 @@ func HandleCommand(incPckData) -> void:
 					for debuff in included_item_debuffs:
 						included_item_debuffs[i] = int(item_name_to_id["Buckshot Roulette"][debuff.to_lower()])
 						i += 1
-					print("Included Item Debuffs: ", included_item_debuffs)
+					
+					ModLoaderLog.info(
+						"Included Item Debuffs: %s" % [str(included_item_debuffs)],
+						"asdfwyay-APBuckshot"
+					)
 					
 					var syncPck = Sync.new()
 					syncing = true
@@ -574,28 +613,27 @@ func HandleCommand(incPckData) -> void:
 					connectedAsyncPoints()
 				
 				goal_requirements = 0b100
-				match (connectedPck.slot_data["additional_goal_requirements"]):
-					"shots":
+				match (int(connectedPck.slot_data["additional_goal_requirements"])):
+					1: #shots
 						goal_requirements |= 0b010
-					"streak":
+					2: #streak
 						goal_requirements |= 0b001
-					"sanities":
+					3: #sanities
 						goal_requirements |= 0b011
 				
+				total_shotsanity_count = int(connectedPck.slot_data["shotsanity_count"])
 				shotsanity_goal_count = int(connectedPck.slot_data["shotsanity_goal_percentage"])
 				if shotsanity_goal_count == 0:
 					goal_requirements_met = goal_requirements_met | 0b010
 				else:
 					shotsanity_goal_count = floor(
-						float(shotsanity_goal_count) / 100.0 * connectedPck.slot_data["shotsanity_count"]
+						float(shotsanity_goal_count) / 100.0 * float(total_shotsanity_count)
 					)
+				setShotsanityCount()
 				
 				streaksanity_count = int(connectedPck.slot_data["streaksanity_count"])
-				if (
-					streaksanity_count == 0
-					or L_OFST_STS + streaksanity_count - 2 in checkedLocations
-				):
-					goal_requirements_met = goal_requirements_met | 0b001
+				setMaxStreak()
+				
 			"PrintJSON":
 				handleMessage(incPckData)
 
@@ -604,8 +642,8 @@ func connectedAsyncPoints() -> void:
 	var setNotifyPck = SetNotify.new(["BuckshotRoulettePoints_%d" % slot_num])
 	SendPacket(setNotifyPck)
 	
-	var setPck = ApClient.Set.new(
-		"BuckshotRoulettePoints_%d" % ApClient.slot_num,
+	var setPck = Set.new(
+		"BuckshotRoulettePoints_%d" % slot_num,
 		0,
 		true,
 		[
@@ -735,3 +773,21 @@ func checkItemDebuff(id: int) -> bool:
 		id in included_item_debuffs
 		and mechanicItems[I_OFST_ITEM_DEBUFF + id - 2] == 0
 	)
+
+
+func setShotsanityCount() -> void:
+	for i in range(L_OFST_SS, L_OFST_SS + 1000):
+		if float(i) not in checkedLocations:
+			shotsanityCount = i - L_OFST_SS
+			break
+	if shotsanityCount >= shotsanity_goal_count:
+		goal_requirements_met = goal_requirements_met | 0b010
+
+
+func setMaxStreak() -> void:
+	for i in range(L_OFST_STS, L_OFST_STS + 9):
+		if float(i) not in checkedLocations:
+			max_streak = i - L_OFST_STS + 1
+			break
+	if max_streak >= streaksanity_count:
+		goal_requirements_met = goal_requirements_met | 0b001
