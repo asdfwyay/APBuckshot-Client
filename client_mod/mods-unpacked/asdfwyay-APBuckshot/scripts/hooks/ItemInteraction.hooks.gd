@@ -26,7 +26,7 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 				ApClient.request_mag_choice.emit()
 				var res = await ApClient.send_mag_choice
 				if res != "none":
-					if randf() <= 0.5:
+					if randf() <= 0.75:
 						ApClient.send_notification.emit(
 							"Conversion sucessful (Originally %s)" % roundManager.shellSpawner.sequenceArray[0]
 						)
