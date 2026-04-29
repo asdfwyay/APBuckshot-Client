@@ -101,7 +101,6 @@ func _on_icon_gui_input(event):
 		else:
 			maxHealth = round_manager.roundArray[0].startingHealth
 		
-		print(ApClient.isPlayerTurn)
 		if (ApClient.isPlayerTurn and ApClient.lifeBankCharges > 0):
 			if (curHealth < maxHealth and !round_manager.wireIsCut_player):
 				ApClient.lifeBankCharges -= 1

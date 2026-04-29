@@ -8,7 +8,10 @@ func SendDialogue(chain: ModLoaderHookChain) -> void:
 	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 	var shellIndex = GlobalVariables.get_meta("burner_phone_choice")
 	
-	print("Starting SendDialogue")
+	ModLoaderLog.debug(
+		"Starting SendDialogue()",
+		"asdfwyay-APBuckshot"
+	)
 	
 	if shellIndex > 0:
 		var firstpart = tr("SEQUENCE%d" % shellIndex)

@@ -16,7 +16,6 @@ var canConnect: bool
 
 func _ready():
 	ApClient = $"/root/ModLoader/asdfwyay-APBuckshot/ApClient"
-	print(ApClient)
 	ApClient.send_error.connect(_on_receive_error_msg)
 	
 	canConnect = true
