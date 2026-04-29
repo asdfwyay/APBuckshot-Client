@@ -8,7 +8,10 @@ func GrabItem(chain: ModLoaderHookChain):
 	var roundManager = mainNode.roundManager
 	var old_array_amounts = {}
 	
-	print("Starting GrabItem")
+	ModLoaderLog.debug(
+		"Starting GrabItem()",
+		"asdfwyay-APBuckshot"
+	)
 	
 	ApClient.isPlayerTurn = false
 	
@@ -68,19 +71,12 @@ func GrabItem(chain: ModLoaderHookChain):
 	for id in old_array_amounts:
 		mainNode.amounts.array_amounts[id].amount_active = old_array_amounts[id]
 	
-	print("Finishing GrabItem")
+	ModLoaderLog.debug(
+		"Finishing GrabItem()",
+		"asdfwyay-APBuckshot"
+	)
 
 
-func GrabItems_Enemy(chain: ModLoaderHookChain):
-	var mainNode := chain.reference_object as ItemManager
-	var roundManager = mainNode.roundManager
-	
-	print("Starting GrabItems_Enemy")
-	print(mainNode.numberOfItemsGrabbed_enemy)
-	print(roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab)
-	
-	chain.execute_next()
-	
 #func GrabItems_Enemy(chain: ModLoaderHookChain):
 #	var mainNode := chain.reference_object as ItemManager
 #	var ApClient = mainNode.get_tree().root.get_node("/root/ModLoader/asdfwyay-APBuckshot/ApClient")
