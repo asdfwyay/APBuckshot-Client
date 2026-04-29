@@ -33,9 +33,13 @@ func Shoot(chain: ModLoaderHookChain, who : String):
 		
 		if who == "dealer":
 			ApClient.streak += 1
+			if ApClient.streak >= ApClient.max_streak:
+				ApClient.max_streak = ApClient.streak
 			if ApClient.streak >= ApClient.streaksanity_count:
 				ApClient.goal_requirements_met = ApClient.goal_requirements_met | 0b001
-			print("Current Streak: %d" % ApClient.streak)
+			
+			ModLoaderLog.info("Current Streak: %d" % ApClient.streak, "asdfwyay-APBuckshot")
+			
 			if ApClient.streak >= 2 and ApClient.streak <= 10:
 				ApClient.SendLocation(
 					ApClient.L_OFST_STS + ApClient.streak - 2
@@ -47,8 +51,10 @@ func Shoot(chain: ModLoaderHookChain, who : String):
 	if (
 		mainNode.roundManager.barrelSawedOff
 		and ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF] > 0
+		and ApClient.item_buff_states["handsaw"]
 	):
 		mainNode.roundManager.currentShotgunDamage = 3
+		ApClient.item_buff_states["handsaw"] = false
 	
 	if mainNode.roundManager.barrelSawedOff:
 		ApClient.hasUsedHandsaw = true

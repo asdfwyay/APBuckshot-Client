@@ -8,6 +8,8 @@ func MainBatchSetup(chain: ModLoaderHookChain, dealerEnterAtStart : bool):
 	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 	
 	ApClient.item_buff_states["beer"] = true
+	ApClient.item_buff_states["magnifying glass"] = true
+	ApClient.item_buff_states["handsaw"] = true
 	
 	chain.execute_next_async([dealerEnterAtStart])
 
@@ -21,7 +23,10 @@ func EndMainBatch(chain: ModLoaderHookChain):
 	var currentRound = mainNode.currentRound
 	var double_or_nothing_rounds_beat = mainNode.double_or_nothing_rounds_beat
 	
-	print("Current round: %d, %d" % [currentRound, playerData.currentBatchIndex])
+	ModLoaderLog.info(
+		"Current round: %d, %d" % [currentRound, playerData.currentBatchIndex],
+		"asdfwyay-APBuckshot"
+	)
 	
 	if (!endless):
 		match playerData.currentBatchIndex:
@@ -103,7 +108,11 @@ func SetupDeskUI(chain: ModLoaderHookChain):
 		if randf() <= f:
 			poisonDmg += 1
 		
-		print("f: %f | Poison Dmg: %f" % [f, poisonDmg])
+		ModLoaderLog.debug(
+			"Poison Chance: %f | Poison Damage: %f" % [f, poisonDmg],
+			"asdfwyay-APBuckshot"
+		)
+		
 		if not ApClient.isPlayerTurn and poisonDmg > 0:
 			var prevHealth = mainNode.health_player
 			mainNode.health_player -= poisonDmg

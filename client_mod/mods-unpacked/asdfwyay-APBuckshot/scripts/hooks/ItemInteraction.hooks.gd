@@ -7,7 +7,10 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 	var ApClient = mainNode.get_tree().root.get_node(APCLIENT_PATH)
 	var roundManager = mainNode.roundManager
 	
-	print("Starting PickupItemFromTable")
+	ModLoaderLog.debug(
+		"Starting PickupItemFromTable()",
+		"asdfwyay-APBuckshot"
+	)
 	
 	mainNode.perm.SetIndicators(false)
 	mainNode.perm.SetInteractionPermissions(false)
@@ -16,7 +19,10 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 	
 	match (passedItemName):
 		"magnifying glass":
-			if ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF + 1] > 0:
+			if (
+				ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF + 1] > 0
+				and ApClient.item_buff_states["magnifying glass"]
+			):
 				ApClient.request_mag_choice.emit()
 				var res = await ApClient.send_mag_choice
 				if res != "none":
@@ -27,6 +33,7 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 						mainNode.roundManager.shellSpawner.sequenceArray[0] = res
 					else:
 						ApClient.send_notification.emit("Conversion failed")
+					ApClient.item_buff_states["magnifying glass"] = false
 		"beer":
 			if (
 				ApClient.mechanicItems[ApClient.I_OFST_ITEM_BUFF + 2] > 0
@@ -79,4 +86,8 @@ func PickupItemFromTable(chain: ModLoaderHookChain, itemParent : Node3D, passedI
 					mainNode.roundManager.shellSpawner.sequenceArray[0] = "blank"
 				else:
 					mainNode.roundManager.shellSpawner.sequenceArray[0] = "live"
-	print("Finishing PickupItemFromTable")
+	
+	ModLoaderLog.debug(
+		"Finishing PickupItemFromTable()",
+		"asdfwyay-APBuckshot"
+	)
