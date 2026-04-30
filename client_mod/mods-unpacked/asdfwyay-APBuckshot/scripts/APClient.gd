@@ -194,7 +194,6 @@ func APConnect(_slot=slot, _hostname=hostname, _port=port, _password=password) -
 		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
 	else:
 		result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
-	result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
 	
 	await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 	if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
