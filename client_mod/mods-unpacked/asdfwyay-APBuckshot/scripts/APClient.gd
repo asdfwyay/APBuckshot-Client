@@ -186,15 +186,15 @@ func APConnect(_slot=slot, _hostname=hostname, _port=port, _password=password) -
 	):
 		return false
 	
-	socket = WebSocketPeer.new()
-	socket.set_inbound_buffer_size(50000000)
-	connectionState = ConnectionState.CONNECTING
+	createSocket()
+	attemptReconnection = false
 	
 	var result
 	if (hostname in ["localhost", "127.0.0.1"]):
 		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
 	else:
 		result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
+	result = socket.connect_to_url("wss://%s:%s" % [hostname, port])
 	
 	await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 	if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
@@ -202,6 +202,9 @@ func APConnect(_slot=slot, _hostname=hostname, _port=port, _password=password) -
 			"Failed wss. Attempting ws...",
 			"asdfwyay-APBuckshot"
 		)
+		
+		createSocket()
+		
 		result = socket.connect_to_url("ws://%s:%s" % [hostname, port])
 		await get_tree().create_timer(CONNECTION_TIMEOUT).timeout
 		if result != OK or socket.get_ready_state() != socket.STATE_OPEN:
@@ -211,6 +214,8 @@ func APConnect(_slot=slot, _hostname=hostname, _port=port, _password=password) -
 			)
 			connectionState = ConnectionState.DISCONNECTED
 			return false
+	
+	
 	return true
 
 
@@ -637,6 +642,11 @@ func HandleCommand(incPckData) -> void:
 			"PrintJSON":
 				handleMessage(incPckData)
 
+
+func createSocket() -> void:
+	socket = WebSocketPeer.new()
+	socket.set_inbound_buffer_size(50000000)
+	connectionState = ConnectionState.CONNECTING
 
 func connectedAsyncPoints() -> void:
 	var setNotifyPck = SetNotify.new(["BuckshotRoulettePoints_%d" % slot_num])
