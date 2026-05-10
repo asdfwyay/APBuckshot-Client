@@ -19,20 +19,20 @@ func GrabItem(chain: ModLoaderHookChain):
 		chain.execute_next_async()
 		return
 	
-	var active_items = 0
-	var zero_active_count = 0
+	var active_items = []
 	for i in range(9):
-		if mainNode.amounts.array_amounts[i].amount_active == 0:
-			zero_active_count += 1
-		else:
-			active_items += mainNode.amounts.array_amounts[i].amount_active
+		if (
+			mainNode.amounts.array_amounts[i].amount_active > 0
+			and mainNode.amounts.array_amounts[i].amount_active > mainNode.amounts.array_amounts[i].amount_player
+		):
+			active_items.append(i + 2)
 	
 	var item_trap: bool = false
 	if ApClient.I_ITEM_TRAP in ApClient.trapQueue:
 		item_trap = true
 		ApClient.trapQueue.erase(ApClient.I_ITEM_TRAP)
 	
-	if ApClient.obtainedItems.is_empty() or active_items == 0 or item_trap or (
+	if ApClient.obtainedItems.is_empty() or active_items.is_empty() or item_trap or (
 		mainNode.numberOfItemsGrabbed == roundManager.roundArray[roundManager.currentRound].numberOfItemsToGrab
 		) or (
 		roundManager.currentRound == 0
@@ -46,7 +46,7 @@ func GrabItem(chain: ModLoaderHookChain):
 	var num_rolls: int = ApClient.mechanicItems[ApClient.I_OFST_MECH] + 1
 	var pull_item: int = 0
 	while (num_rolls > 0):
-		pull_item = randi_range(2,10 - zero_active_count)
+		pull_item = active_items.pick_random()
 		if float(pull_item) in ApClient.obtainedItems:
 			break
 		num_rolls -= 1
@@ -59,12 +59,15 @@ func GrabItem(chain: ModLoaderHookChain):
 		return
 	
 	for id in range(2,11):
-		if float(id) not in ApClient.obtainedItems:
+		if id != pull_item:
 			old_array_amounts[id-2] = mainNode.amounts.array_amounts[id-2].amount_active
 			mainNode.amounts.array_amounts[id-2].amount_active = 0
 	
-	if (mainNode.amounts.array_amounts[pull_item - 2].amount_active == 0):
-		mainNode.amounts.array_amounts[pull_item - 2].amount_active = 1
+	if (
+		mainNode.amounts.array_amounts[pull_item - 2].amount_active == 0
+	    or mainNode.amounts.array_amounts[pull_item - 2].amount_active <= mainNode.amounts.array_amounts[pull_item - 2].amount_player
+	):
+		mainNode.amounts.array_amounts[pull_item - 2].amount_active = max(0, mainNode.amounts.array_amounts[pull_item - 2].amount_player) + 1
 	
 	await chain.execute_next_async()
 	
